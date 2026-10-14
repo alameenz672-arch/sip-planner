@@ -1,0 +1,2458 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f4f9ff" media="(prefers-color-scheme:light)"><meta name="theme-color" content="#0e1626" media="(prefers-color-scheme:dark)">
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="SIP Planner">
+<title>SIP Planner</title>
+<style>
+:root{--bg:#f4f9ff;--card:#fff;--tx:#0b1f4b;--mu:#44546a;--bd:#d6e4f5;--ac:#1d6bff;--W:640px;--r:14px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#16223a;--tx:#eaf1ff;--mu:#a9b8d4;--bd:#2a3b5c}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#16223a;--tx:#eaf1ff;--mu:#a9b8d4;--bd:#2a3b5c}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 8px);-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.4;padding:12px}
+.wrap{max-width:1080px;margin:0 auto}
+.top{margin:2px 0 12px}
+h1{font-size:22px;line-height:1.2;margin:0 0 4px}
+p.s{margin:0;color:var(--mu);font-size:13px}
+.layout{display:block}
+.layout>div{min-width:0}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+
+/* form */
+.mkt{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px;margin-bottom:10px}
+.panel{display:flex;flex-direction:column;gap:10px}
+details.grp{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+details.grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:8px 14px;font-weight:700;font-size:15px;-webkit-tap-highlight-color:transparent}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary::after{content:"";flex:none;width:8px;height:8px;margin:0 4px 3px 0;border:solid var(--mu);border-width:0 2px 2px 0;transform:rotate(45deg);transition:transform .15s}
+details.grp[open]>summary::after{transform:rotate(-135deg);margin-bottom:-3px}
+details.grp[open]>summary{border-bottom:1px solid var(--bd)}
+.gt small{display:block;font-weight:400;font-size:12px;color:var(--mu);margin-top:1px}
+.gb{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;padding:14px;align-items:end}
+.full,.sec,#rateStatus{grid-column:1/-1}
+.sec{font-size:13px;font-weight:700;color:var(--ac);margin-top:4px}
+label{font-size:12px;color:var(--mu);display:block;margin-bottom:4px;line-height:1.25}
+input,select,textarea{width:100%;min-height:44px;padding:10px;border:1px solid var(--bd);border-radius:10px;font:inherit;font-size:16px;background:var(--bg);color:var(--tx)}
+textarea{resize:vertical;line-height:1.4}
+#rateStatus{font-size:12px;color:var(--mu);margin-top:-4px}
+#hint{margin-top:10px;padding:9px 12px;border-left:3px solid var(--ac);background:var(--card);border-radius:8px;font-size:13px;color:var(--mu)}
+#hint:empty{display:none}
+.formact{display:flex;gap:10px;margin-top:12px;padding:8px 0 4px;background:var(--bg)}
+#bg{flex:1}#br{flex:0 0 auto;min-width:96px}
+
+/* buttons */
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{flex:1;min-width:120px;min-height:46px;padding:10px 12px;border-radius:12px;border:1px solid var(--ac);background:var(--ac);color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button.o{background:transparent;color:var(--ac)}
+button:active{transform:scale(.98)}
+.busy .btns button{opacity:.55;pointer-events:none}
+
+/* results */
+#res{scroll-margin-top:8px}
+.tb{position:sticky;top:0;z-index:6;max-width:var(--W);margin:0 auto;padding:6px 0 4px;background:var(--bg);background:color-mix(in srgb,var(--bg) 93%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.tbrow{display:flex;gap:8px;align-items:center}
+.seg{display:flex;flex:1;min-width:0;gap:3px;padding:3px;background:var(--card);border:1px solid var(--bd);border-radius:13px}
+.seg button{flex:1;min-width:0;min-height:38px;padding:6px 4px;border:0;border-radius:10px;font-size:13.5px;white-space:nowrap}
+.seg button.o{background:transparent;color:var(--mu)}
+.edit{display:none;flex:0 0 auto;min-width:0;min-height:46px;padding:0 16px;align-items:center}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0;padding:8px 0 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:0 0 auto;min-width:0;min-height:36px;padding:6px 14px;font-size:13px;border-radius:999px;scroll-snap-align:center}
+.sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-width:var(--W);margin:6px auto 10px}
+.sum div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;min-width:0}
+.sum div:last-child:nth-child(odd){grid-column:1/-1}
+.sum small{display:block;font-size:11.5px;color:var(--mu);margin-bottom:2px}
+.sum b{display:block;font-size:17px;line-height:1.2;word-break:break-word}
+.sum span{display:block;font-size:12px;color:var(--mu);margin-top:2px;word-break:break-word}
+.sum span:empty{display:none}
+.zh{display:none;text-align:center;font-size:12px;color:var(--mu);margin:0 0 6px}
+#out{max-width:var(--W);margin:0 auto;cursor:zoom-in}
+#out svg{display:block;width:100%;height:auto;border-radius:10px}
+#out .pg{margin-bottom:12px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:#fff}
+#btns,#pbtns{position:sticky;bottom:0;z-index:5;max-width:var(--W);margin:10px auto 0;padding:8px 0;background:var(--bg);background:color-mix(in srgb,var(--bg) 94%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#btns button,#pbtns button{min-width:0;padding:10px 6px;font-size:14px;white-space:nowrap}
+.note{max-width:var(--W);margin:4px auto 8px;text-align:center;color:var(--mu);font-size:12px}
+
+/* toast */
+#msg{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;max-width:min(92vw,520px);padding:10px 14px;border-radius:12px;background:var(--tx);color:var(--bg);font-size:13px;box-shadow:0 6px 24px rgba(0,0,0,.25);opacity:0;transform:translate(-50%,8px);pointer-events:none;transition:opacity .2s,transform .2s}
+#msg.on{opacity:1;transform:translate(-50%,0)}
+
+/* zoom viewer */
+#zm{position:fixed;top:0;right:0;bottom:0;left:0;z-index:50;background:var(--bg);overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y pinch-zoom;padding-top:env(safe-area-inset-top,0px)}
+#zx{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:51;flex:none;min-width:0;padding:10px 16px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+#zi svg{width:1000px;max-width:none;height:auto;display:block;margin:56px auto 24px}
+
+/* client mode */
+.toph{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+#cmb{flex:0 0 auto;min-width:0;min-height:40px;padding:6px 14px;font-size:14px}
+#cm{max-width:var(--W);margin:0 auto 14px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px}
+.cmh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.cmh b{font-size:18px}
+.cmh button{flex:0 0 auto;min-width:0;min-height:38px;padding:6px 12px;font-size:13px}
+#cmf,#cmrt{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#cmf button,#cmrt button{flex:0 0 auto;min-width:0;min-height:38px;padding:6px 12px;font-size:13px;border-radius:999px}
+.cmlab{font-size:13px;color:var(--mu);margin:10px 0 6px}.cmlab small{font-size:12px}
+.cmrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:8px}
+.cmrow label{margin:0;font-size:14px;color:var(--tx);font-weight:600}
+.cmrow output{font-size:20px;font-weight:800;color:var(--ac)}
+#cm input[type=range]{padding:0;min-height:40px;border:0;background:transparent;accent-color:var(--ac)}
+#cmr{margin-top:12px;padding:14px;border-radius:12px;background:var(--bg);border:1px solid var(--bd)}
+.cmk{font-size:14px;color:var(--mu)}
+.cmb{font-size:34px;font-weight:800;line-height:1.15;color:#14803F;margin:2px 0}
+.cms{font-size:13px;color:var(--mu)}
+.cmbar{height:10px;border-radius:6px;background:#22A559;margin:12px 0 6px;overflow:hidden}
+.cmbar i{display:block;height:100%;background:#4C84F5}
+.cml{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--mu)}
+.cml b{display:block;font-size:16px;color:var(--tx)}
+.cmd{font-size:11.5px;color:var(--mu);margin-top:8px}
+.cmleg{display:flex;gap:14px;font-size:12px;color:var(--mu);margin-bottom:2px}.cmleg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+#cmr.mini{padding:6px 12px}#cmr.mini .cmk,#cmr.mini .cmbar,#cmr.mini .cmleg,#cmr.mini .cmside{display:none}#cmr.mini .cmb{font-size:22px}#cmr.mini .cmi{border:0;margin:0;padding:0;font-size:12px}
+.cmwarn{font-size:12px;color:var(--mu);margin:-2px 0 6px}.cmwarn.hot{color:#B45309}
+body.client p.s,body.client .side,body.client .tb,body.client #sum,body.client .note,body.client #pbtns,body.client #cmb{display:none}
+body.client .layout{display:block}
+
+#cm{padding:12px}
+#cmr{position:sticky;top:env(safe-area-inset-top,0px);z-index:7;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--bd);box-shadow:0 6px 16px rgba(0,0,0,.10)}
+.cmk{font-size:12.5px}
+.cmtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cmb{font-size:30px;margin:0;flex:0 1 auto}
+.cmside{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--mu);text-align:right}
+.cmside b{font-size:14px;color:var(--tx)}
+.cmbar{margin:8px 0 4px;height:8px}
+.cmi{font-size:12.5px;color:var(--tx);margin-top:6px;padding-top:6px;border-top:1px dashed var(--bd);line-height:1.4}
+#cmf{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -2px 6px;padding:2px}
+#cmf::-webkit-scrollbar{display:none}
+#cm input[type=range]{min-height:34px;margin:0}
+.cmrow output{font-size:18px}
+#cmrt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#cmrt button{min-width:0;padding:6px 4px;min-height:50px;border-radius:12px;font-size:12px;line-height:1.25}
+#cmrt button b{display:block;font-size:16px}
+#cmc{margin-top:14px;padding:12px;border-radius:12px;background:var(--bg);border:1px solid var(--bd)}
+.cmct{font-weight:700;font-size:15px;margin-bottom:6px}
+.cmcr{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:8px 0;border-top:1px solid var(--bd);font-size:14px}
+.cmcr small{display:block;font-size:11.5px;color:var(--mu);font-weight:400}
+.cmcv{text-align:right;font-weight:800;color:#14803F;font-size:16px;flex:0 0 auto}
+#cmn{margin-top:10px}
+.cmrow output{white-space:nowrap}
+
+/* phones and small tablets */
+@media (max-width:899px){
+  .zh{display:block}
+  .edit{display:inline-flex}
+  .formact{position:sticky;bottom:0;z-index:5;border-top:1px solid var(--bd);margin:12px -12px 0;padding:10px 12px calc(8px + env(safe-area-inset-bottom,0px))}
+}
+.qcg{display:grid;grid-template-columns:1fr 1fr;gap:6px}.qcg>div{display:flex;align-items:baseline;justify-content:space-between;gap:6px;background:var(--bg,#F4F9FF);border:1px solid var(--bd);border-radius:10px;padding:8px 10px;min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.qcg>div:last-child:nth-child(odd){grid-column:1/-1}.qcg>div:active{background:var(--card)}.qcg>div:only-child{padding:12px}.qcg>div:only-child b{font-size:24px}#qcX{min-height:40px}
+.qcg small{font-size:12px;font-weight:700;color:var(--mu);flex:none}.qcg b{font-size:15px;line-height:1.25;font-variant-numeric:tabular-nums;text-align:right;overflow-wrap:anywhere}
+#qcS{font-size:12px;color:var(--mu);line-height:1.4}
+.sig{max-width:1320px;margin:6px auto 0;padding:0 14px 18px;text-align:right;font:italic 15px/1 "Segoe Script","Bradley Hand","Snell Roundhand","Brush Script MT","Lucida Handwriting",cursive;color:var(--mu);opacity:.5;letter-spacing:.3px;user-select:none}
+@media print{.sig{display:none}}
+@media (max-width:599px){p.s{display:none}.top{margin-bottom:8px}}
+@media (max-width:359px){.gb{grid-template-columns:1fr}}
+
+/* desktop */
+@media (min-width:900px){
+  :root{--W:760px}
+  body{padding:28px}
+  h1{font-size:26px}
+  p.s{font-size:14px}
+  .layout{display:grid;grid-template-columns:400px minmax(0,1fr);gap:32px;align-items:start}
+  .side{position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto;padding:2px 8px 0 2px;scrollbar-width:thin}
+  .formact{position:sticky;bottom:0;z-index:2}
+  .tb{top:8px;border-radius:12px}
+  #btns,#pbtns{bottom:8px}
+  #out{cursor:default}
+  .sum{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .sum b{font-size:18px}
+  /* client mode on desktop: controls on the left, sticky result on the right */
+  body.client #cm{max-width:1000px;display:grid;grid-template-columns:minmax(0,1fr) 340px;column-gap:32px;align-items:start;padding:18px 20px}
+  body.client #cm>*{grid-column:1}
+  body.client #cm>.cmh{grid-column:1/-1}
+  body.client #cm>#cmr{grid-column:2;grid-row:2/span 20;top:20px;margin:0;padding:16px;align-self:start}
+  body.client #cmr .cmk{font-size:13px}
+  body.client #cmr .cmb{font-size:36px}
+  body.client #cmr .cmtop{flex-direction:column;align-items:flex-start;gap:6px}
+  body.client #cmr .cmside{text-align:left;flex-direction:row;gap:14px;font-size:13px}
+  body.client #cmr.mini .cmk,body.client #cmr.mini .cmbar,body.client #cmr.mini .cmleg,body.client #cmr.mini .cmside{display:revert}
+  body.client #cmr.mini .cmb{font-size:36px}
+  body.client #cmr.mini{padding:16px}
+  body.client #cmr.mini .cmi{border-top:1px dashed var(--bd);margin-top:6px;padding-top:6px}
+  body.client .layout{max-width:1000px;margin:0 auto}
+  body.client #cm input[type=range]{min-height:30px}
+  .sum div:last-child:nth-child(odd){grid-column:auto}
+  .sum div{padding:12px 14px}
+  .sum b{font-size:20px}
+  #msg{left:calc(50% + 216px)}
+}
+@media (min-width:1100px){.wrap{max-width:1320px}}
+@media (min-width:1400px){:root{--W:840px}.layout{grid-template-columns:420px minmax(0,1fr)}#msg{left:calc(50% + 226px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}button:active{transform:none}}
+
+/* iOS Safari */
+html{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+body{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));-webkit-touch-callout:none}
+input,textarea,select,button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
+input,textarea{-webkit-user-select:text;user-select:text;border-radius:10px}
+input[type=range]{-webkit-appearance:auto;appearance:auto}
+select{padding-right:34px;background-image:linear-gradient(45deg,transparent 50%,var(--mu) 50%),linear-gradient(135deg,var(--mu) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;text-overflow:ellipsis}
+input[type=number]{-moz-appearance:textfield}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+#out,#out *{-webkit-touch-callout:default}
+@media (min-width:900px){body{padding-left:28px;padding-right:28px}}
+</style></head><body><div class="wrap">
+<header class="top"><div class="toph"><div><h1>SIP Planner</h1><p class="s">Build share-ready SIP illustrations and personal plan PDFs. Everything runs on your device; live currency rates need internet.</p></div><button id="cmb" class="o" type="button">Client mode</button></div></header>
+<section id="cm" hidden aria-label="Client mode">
+<div class="cmh"><b>Plan your SIP</b><button id="cmx" class="o" type="button">Advisor mode</button></div>
+<div id="cmr" aria-live="polite"></div>
+<div id="cmf" role="group" aria-label="How do you want to invest"></div>
+<div class="cmrow"><label for="car" id="cal">Amount</label><output id="cav"></output></div>
+<input id="car" type="range" min="500" max="100000" step="500" value="5000">
+<div id="cyrow"><div class="cmrow"><label for="cyr">Years you invest</label><output id="cyv"></output></div>
+<input id="cyr" type="range" min="1" max="40" step="1" value="5"></div>
+<div class="cmrow"><label for="chr" id="chl">Then hold for</label><output id="chv"></output></div>
+<input id="chr" type="range" min="0" max="30" step="1" value="1">
+<div class="cmrow"><label for="crr">Expected return a year</label><output id="crv"></output></div>
+<input id="crr" type="range" min="1" max="30" step="0.5" value="12">
+<div id="crw" class="cmwarn"></div>
+<div id="cmc" hidden></div>
+<div id="cmn" class="cmd"></div>
+</section>
+<div class="layout">
+<div class="side" id="form">
+<div class="mkt" id="mktW"><label for="mkt">Investment market</label><select id="mkt"><option value="GL" selected>Global fund — invest in USD</option><option value="IN">Indian market — invest in ₹ INR</option></select></div>
+<div class="panel">
+<details class="grp" id="gInv" open><summary><span class="gt">Investment<small id="sInv">Amount, return, years, inflation</small></span></summary><div class="gb">
+<div class="full"><label for="fq">How is the client investing?</label><select id="fq"><option value="12" selected>Monthly SIP</option><option value="4">Quarterly SIP</option><option value="2">Half-yearly SIP</option><option value="1">Yearly SIP</option><option value="L">Lump sum (one time)</option></select></div>
+<div><label for="p" id="pl">Monthly SIP ($)</label><input id="p" type="number" inputmode="decimal" min="1" value="300"></div>
+<div><label for="r">Assumed annual return (%)</label><input id="r" type="number" inputmode="decimal" step="any" min="0" max="40" value="18"></div>
+<div id="syW"><label for="sy" id="syl">SIP years (pay monthly)</label><input id="sy" type="number" inputmode="numeric" min="1" max="40" step="1" value="5"></div>
+<div><label for="ty" id="tyl">Total years (SIP + hold)</label><input id="ty" type="number" inputmode="numeric" min="1" max="40" step="1" value="6"></div>
+<div><label for="inf">Inflation (% a year, 0 = hide)</label><input id="inf" type="number" inputmode="decimal" step="any" min="0" max="30" value="6"></div>
+<input id="st" type="hidden" value="">
+<div><label for="rc">Conservative return (%) — plan</label><input id="rc" type="number" inputmode="decimal" placeholder="auto: base −4"></div>
+<div><label for="rh">Higher return (%) — plan</label><input id="rh" type="number" inputmode="decimal" placeholder="auto: base +4"></div>
+<input id="su" type="hidden" value="auto">
+</div></details>
+<details class="grp" id="gCli"><summary><span class="gt">Client details<small id="sCli">Name, age, goal, retirement</small></span></summary><div class="gb">
+<div class="full"><label for="nm">Customer name (optional)</label><input id="nm" placeholder="e.g. Rahul Sharma" autocomplete="off"></div>
+<div><label for="ag">Customer age</label><input id="ag" type="number" inputmode="numeric" min="1" max="99" placeholder="e.g. 30"></div>
+<div id="tgW"><label for="tg" id="tgl">Target age</label><input id="tg" type="number" inputmode="numeric" min="2" max="140" placeholder="e.g. 50"></div>
+<div><label for="gl">Goal (optional)</label><select id="gl"><option value="">None</option><option value="Wealth creation">Wealth creation</option><option value="Child education">Child education</option><option value="Home">Home</option><option value="Retirement">Retirement</option><option value="Financial security">Emergency / financial security</option><option value="Custom">Custom goal</option></select></div>
+<div id="gaW"><label for="ga" id="gal">Target amount ($ USD)</label><input id="ga" type="number" inputmode="decimal" min="0" placeholder="e.g. 100000"></div>
+<div class="full" id="gnW" hidden><label for="gn">Custom goal name</label><input id="gn" placeholder="e.g. Dream home"></div>
+<div id="raW" hidden><label for="ra">Retirement age (income needed from this age)</label><input id="ra" type="number" inputmode="numeric" min="2" max="98" placeholder="e.g. 55"></div>
+<div id="rtW" hidden><label for="wr">Retirement: withdraw % of fund / year (1–12)</label><input id="wr" type="number" inputmode="decimal" step="0.5" min="1" max="12" value="6"></div>
+<div id="rtX" hidden></div><input id="pr" type="hidden" value="8">
+</div></details>
+<details class="grp" id="gCur"><summary><span class="gt">Currency<small id="sCur">Display currency and live rate</small></span></summary><div class="gb">
+<div>
+<label for="currency">Display currency</label>
+<select id="currency">
+  <option value="USD" selected>USD — US Dollar ($)</option>
+  <option value="INR">INR — Indian Rupee (₹)</option>
+  <option value="AED">AED — UAE Dirham</option>
+  <option value="SAR">SAR — Saudi Riyal</option>
+  <option value="QAR">QAR — Qatari Riyal</option>
+  <option value="KWD">KWD — Kuwaiti Dinar</option>
+  <option value="BHD">BHD — Bahraini Dinar</option>
+  <option value="OMR">OMR — Omani Rial</option>
+  <option value="GBP">GBP — British Pound (£)</option>
+  <option value="EUR">EUR — Euro (€)</option>
+  <option value="CAD">CAD — Canadian Dollar (C$)</option>
+  <option value="AUD">AUD — Australian Dollar (A$)</option>
+</select>
+</div>
+<div id="fxW">
+<label for="fx">USD → selected currency rate</label>
+<input id="fx" type="number" inputmode="decimal" value="1" step="any">
+</div>
+<div class="full" id="rateStatus">Live rate: ready to fetch</div>
+<div class="full" id="rfW"><button id="rf" class="o" type="button">Refresh live rate</button></div>
+<div id="loW"><label for="lo">USD strengthening vs INR, low (%/yr)</label><input id="lo" type="number" inputmode="decimal" value="3"></div>
+<div id="hiW"><label for="hi">USD strengthening vs INR, high (%/yr)</label><input id="hi" type="number" inputmode="decimal" value="5"></div>
+</div></details>
+<details class="grp" id="gQc"><summary><span class="gt">Currency check<small id="sQc">Convert an amount between any two currencies</small></span></summary><div class="gb">
+<div class="full"><label for="qcA">Amount</label><input id="qcA" type="number" inputmode="decimal" step="any" min="0" value="200"></div>
+<div><label for="qcF">From</label><select id="qcF">
+  <option value="USD" selected>USD — US Dollar ($)</option>
+  <option value="INR">INR — Indian Rupee (₹)</option>
+  <option value="AED">AED — UAE Dirham</option>
+  <option value="SAR">SAR — Saudi Riyal</option>
+  <option value="QAR">QAR — Qatari Riyal</option>
+  <option value="KWD">KWD — Kuwaiti Dinar</option>
+  <option value="BHD">BHD — Bahraini Dinar</option>
+  <option value="OMR">OMR — Omani Rial</option>
+  <option value="GBP">GBP — British Pound (£)</option>
+  <option value="EUR">EUR — Euro (€)</option>
+  <option value="CAD">CAD — Canadian Dollar (C$)</option>
+  <option value="AUD">AUD — Australian Dollar (A$)</option>
+</select></div>
+<div><label for="qcT">To</label><select id="qcT">
+  <option value="USD">USD — US Dollar ($)</option>
+  <option value="INR" selected>INR — Indian Rupee (₹)</option>
+  <option value="AED">AED — UAE Dirham</option>
+  <option value="SAR">SAR — Saudi Riyal</option>
+  <option value="QAR">QAR — Qatari Riyal</option>
+  <option value="KWD">KWD — Kuwaiti Dinar</option>
+  <option value="BHD">BHD — Bahraini Dinar</option>
+  <option value="OMR">OMR — Omani Rial</option>
+  <option value="GBP">GBP — British Pound (£)</option>
+  <option value="EUR">EUR — Euro (€)</option>
+  <option value="CAD">CAD — Canadian Dollar (C$)</option>
+  <option value="AUD">AUD — Australian Dollar (A$)</option>
+</select></div>
+<div class="full"><button id="qcX" class="o" type="button">⇄ Swap</button></div>
+<div class="full qcg" id="qcR" aria-live="polite"></div>
+<div class="full" id="qcS"></div>
+</div></details>
+<details class="grp" id="gAdv"><summary><span class="gt">Advisor &amp; WhatsApp QR<small id="sAdv">Advisor name, phone and QR</small></span></summary><div class="gb">
+<div><label for="an">Advisor name</label><input id="an" placeholder="Your name" autocomplete="name"></div>
+<div><label for="ap">Advisor phone</label><input id="ap" type="tel" inputmode="tel" placeholder="+91 98765 43210" autocomplete="tel"></div>
+<div class="full"><label for="wq">WhatsApp chat QR code on image and PDF (uses advisor phone)</label><select id="wq"><option value="1" selected>Show QR code</option><option value="0">Hide</option></select></div>
+</div></details>
+<details class="grp" id="gCmp"><summary><span class="gt">Comparisons &amp; pages<small id="sCmp">FD &amp; savings, Indian vs global page</small></span></summary><div class="gb">
+<div class="full"><label for="cmq">SIP vs FD vs savings comparison</label><select id="cmq"><option value="1" selected>Show on image and PDF</option><option value="0">Hide</option></select></div>
+<div id="fdrW"><label for="fdr">FD interest rate (% a year)</label><input id="fdr" type="number" inputmode="decimal" step="any" min="0" max="30" value="7"></div>
+<div id="svrW"><label for="svr">Savings account rate (% a year)</label><input id="svr" type="number" inputmode="decimal" step="any" min="0" max="30" value="3"></div>
+<div class="sec" id="cmpS">Market comparison page (Global vs Indian)</div>
+<div class="full" id="cmpW"><label for="cmp">Comparison page in plan</label><select id="cmp"><option value="1" selected>Add the page</option><option value="0">Remove the page</option></select></div>
+</div></details>
+<details class="grp" id="gBrand"><summary><span class="gt">Branding &amp; fund<small id="sBrand">Company, colour theme, fund details</small></span></summary><div class="gb">
+<div><label for="co">Company name</label><input id="co" value="WealthVista Global" autocomplete="organization"></div>
+<div><label for="theme">Colour theme</label><select id="theme"><option value="blue" selected>Blue</option><option value="teal">Teal</option><option value="purple">Purple</option><option value="gold">Gold</option><option value="navy">Navy</option><option value="emerald">Emerald</option><option value="rose">Rose</option><option value="orange">Orange</option><option value="indigo">Indigo</option><option value="maroon">Maroon</option><option value="graphite">Graphite</option></select></div>
+<div class="full"><label for="fn">Fund name (on image)</label><input id="fn" placeholder="e.g. Global Growth Fund"></div>
+<div class="full"><label for="fd">Fund details (one per line, as “Label: Value”)</label><textarea id="fd" rows="5" placeholder="Category: Global equity&#10;Benchmark: MSCI World&#10;Minimum SIP: $100"></textarea></div>
+</div></details>
+</div>
+<div id="hint" role="status"></div>
+<div class="formact"><button id="bg" type="button">Show results</button><button id="br" class="o" type="button">Reset</button></div>
+</div>
+<div>
+<div id="res">
+<input id="lay" type="hidden" value="classic">
+<div class="tb"><div class="tbrow"><div class="seg" id="modeBtns"><button id="mi" type="button" aria-pressed="true">Infographic</button><button id="mp" class="o" type="button" aria-pressed="false">Personal plan</button></div><button id="ed" class="o edit" type="button">Edit</button></div>
+<div id="layBtns" class="chips"></div></div>
+<div class="sum" id="sum"></div>
+<div class="zh" id="zh">Tap to zoom</div>
+<div id="out"></div>
+<div class="btns" id="btns"><button id="bsh" type="button">Share</button><button id="bp" class="o" type="button">Download JPG</button><button id="bt" class="o" type="button">Copy text</button></div><div class="btns" id="pbtns" hidden><button id="pbsh" type="button">Share PDF</button><button id="pbd" class="o" type="button">Download PDF</button></div>
+<p class="note">Share opens WhatsApp or email on your phone. <span id="rateNote">Live rates need internet.</span></p>
+</div>
+</div>
+</div>
+</div>
+<p class="sig" aria-hidden="true">made by Ameen</p>
+<div id="msg" role="status" aria-live="polite"></div>
+<div id="zm" hidden role="dialog" aria-label="Zoomed view"><button id="zx" type="button">✕ Close</button><div id="zi"></div></div>
+<script>
+const $=i=>document.getElementById(i);
+try{localStorage.removeItem('sipmaker_logo')}catch(e){}
+const THEMES={
+ blue:{bg:'#F4F9FF',sky:'#CFE6FF',ac:'#1D6BFF',bar:'#4C84F5',ac2:'#1D4ED8',tint:'#E8F0FF',ts:'#BFD3F5',hdr:'#1E3A8A',band:'#0F2A55',bt:'#BBD0F0',bd:'#D6E4F5',bld:'#B7CDE6',g1:'#4DA3FF',ax:'#C9D6E6',rl:'#E1EAF5',ink:'#0B1F4B',mut:'#44546A'},
+ teal:{bg:'#F1FAFA',sky:'#C8EDEE',ac:'#0F8F94',bar:'#0B6E8A',ac2:'#0B6E8A',tint:'#E3F5F6',ts:'#B3DFE2',hdr:'#0B4F5C',band:'#0B3B47',bt:'#B9E3E8',bd:'#CDE8EA',bld:'#A9D3D6',g1:'#3FC1C9',ax:'#BFDDE0',rl:'#DDEEF0'},
+ purple:{bg:'#F7F4FF',sky:'#E1D6FF',ac:'#6D3BFF',bar:'#8B66F5',ac2:'#5B2FD6',tint:'#EFE9FF',ts:'#D0C2F5',hdr:'#3B1E8A',band:'#2A1560',bt:'#D3C6F5',bd:'#E0D7F5',bld:'#CDBFEA',g1:'#9B7BFF',ax:'#D5CCEB',rl:'#E9E3F6'},
+ gold:{bg:'#FFFBF0',sky:'#FFE9B0',ac:'#C98A00',bar:'#D9A21B',ac2:'#A66F00',tint:'#FFF3D1',ts:'#F0D58A',hdr:'#7A5200',band:'#3B2A0A',bt:'#F0DDA8',bd:'#F0E2B8',bld:'#E8D6A0',g1:'#F5C04A',ax:'#E6D9B5',rl:'#F3EAD0'},
+ emerald:makeTheme(158,.7,.34),
+ rose:makeTheme(345,.72,.45),
+ orange:makeTheme(22,.9,.46),
+ indigo:makeTheme(245,.62,.46),
+ maroon:makeTheme(350,.65,.30),
+ graphite:{bg:'#F5F6F8',sky:'#D5DAE2',ac:'#374151',bar:'#6B7280',ac2:'#1F2937',tint:'#ECEFF3',ts:'#CBD2DC',hdr:'#111827',band:'#0B1220',bt:'#CBD2DC',bd:'#DDE1E8',bld:'#C4CBD6',g1:'#6B7280',ax:'#D1D5DB',rl:'#E5E7EB'},
+ navy:{bg:'#F1F4FA',sky:'#B9C8E6',ac:'#1E3A8A',bar:'#2F4C9E',ac2:'#1E3A8A',tint:'#E6EBF7',ts:'#BAC6E3',hdr:'#14275E',band:'#0A1733',bt:'#B6C4E6',bd:'#D2DAEC',bld:'#A9B7D6',g1:'#3C5BB5',ax:'#C5CEE2',rl:'#DDE3F0'}
+};
+function rgb2hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60}return[h,s,l]}
+function hsl2hex(h,s,l){h=((h%360)+360)%360;s=Math.min(1,Math.max(0,s));l=Math.min(1,Math.max(0,l));const a=s*Math.min(l,1-l);const f=n=>{const k=(n+h/30)%12;return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1)))).toString(16).padStart(2,'0')};return('#'+f(0)+f(8)+f(4)).toUpperCase()}
+function makeTheme(h,s,l){
+  s=Math.min(.85,Math.max(.45,s));
+  const lac=Math.min(.52,Math.max(.30,l==null?.46:l));
+  const X=(a,b,c)=>hsl2hex(a,b,c),warm=h>35&&h<75,gr=h>85&&h<165;
+  return{bg:X(h,.6,.975),sky:X(h,.75,.88),ac:X(h,s,warm?Math.min(lac,.40):lac),bar:X(gr?195:h,s,.55),ac2:X(h,s,Math.max(.22,lac-.10)),tint:X(h,.7,.94),ts:X(h,.55,.82),hdr:X(h,s*.9,.26),band:X(h,s*.9,.17),bt:X(h,.5,.80),bd:X(h,.45,.88),bld:X(h,.35,.78),g1:X(h,s,.62),ax:X(h,.25,.82),rl:X(h,.35,.92),ink:X(h,.7,.17),mut:X(h,.22,.36)};
+}
+const curTheme=()=>THEMES[$('theme')&&$('theme').value]||THEMES.blue;
+function recolor(svg){
+  const T=curTheme();if(T===THEMES.blue)return svg;
+  const m={};Object.keys(THEMES.blue).forEach(k=>m[THEMES.blue[k].toUpperCase()]=T[k]);
+  return svg.replace(/#[0-9A-Fa-f]{6}/g,h=>m[h.toUpperCase()]||h);
+}
+const K=v=>v>=1e9?(v/1e9).toFixed(2)+'B':v>=1e6?(v/1e6).toFixed(2)+'M':v>=1000?(v/1000).toFixed(1)+'K':Math.round(v)+'';
+const currencyMeta={
+  USD:{symbol:'$',name:'US Dollar'},
+  INR:{symbol:'₹',name:'Indian Rupee'},
+  AED:{symbol:'AED ',name:'UAE Dirham'},
+  SAR:{symbol:'SAR ',name:'Saudi Riyal'},
+  QAR:{symbol:'QAR ',name:'Qatari Riyal'},
+  KWD:{symbol:'KWD ',name:'Kuwaiti Dinar'},
+  BHD:{symbol:'BHD ',name:'Bahraini Dinar'},
+  OMR:{symbol:'OMR ',name:'Omani Rial'},
+  GBP:{symbol:'£',name:'British Pound'},
+  EUR:{symbol:'€',name:'Euro'},
+  CAD:{symbol:'C$',name:'Canadian Dollar'},
+  AUD:{symbol:'A$',name:'Australian Dollar'}
+};
+const M=v=>currencyMeta[$('currency')?.value||'USD'].symbol+K(v);
+const KI=v=>v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(2)+' L':v>=1000?(v/1000).toFixed(1)+'K':Math.round(v)+'';
+const isIN=()=>{const e=document.getElementById('mkt');return !!e&&e.value==='IN'};
+const BS=()=>isIN()?'₹':'$',BC=()=>isIN()?'INR':'USD',LB=()=>isIN()?'en-IN':'en-US';
+const U=v=>isIN()?'₹'+KI(v):'$'+K(v);
+const fmtMoney=v=>currencyMeta[$('currency')?.value||'USD'].symbol+Math.round(v).toLocaleString('en-US');
+const yr=n=>n+' year'+(n===1?'':'s');
+const cl=(v,a,b)=>Math.min(b,Math.max(a,v));
+function esc(t){return t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const IDS=['wq','cmq','fdr','svr','fq','ra','su','mkt','nm','an','ap','ag','tg','gl','gn','ga','st','rc','rh','co','fn','fd','theme','p','r','sy','ty','lo','hi','fx','currency','wr','pr','cmp','inf','lay'];
+const DEF={wq:'1',cmq:'1',fdr:'7',svr:'3',fq:'12',ra:'',su:'auto',nm:'',an:'',ap:'',mkt:'GL',ag:'',tg:'',gl:'',gn:'',ga:'',st:'',rc:'',rh:'',co:'WealthVista Global',fn:'',fd:'',theme:'blue',p:'300',r:'18',sy:'5',ty:'6',lo:'3',hi:'5',fx:'1',currency:'USD',wr:'6',pr:'8',cmp:'1',inf:'6',lay:'classic'};
+/* ===== Alternate infographic layouts (same content, different structure) ===== */
+const LAYS=[['classic','Classic'],['dashboard','Dashboard'],['timeline','Timeline'],['poster','Poster'],['magazine','Magazine']];
+const LAYOUTS={};
+const PAL=dark=>dark?{dark:1,ink:'#FFFFFF',mut:'#BBD0F0',card:'#1E3A8A',cardS:'#BFD3F5',line:'#BFD3F5',bg:'#0F2A55'}:{dark:0,ink:'#0B1F4B',mut:'#44546A',card:'#FFFFFF',cardS:'#D6E4F5',line:'#E1EAF5',bg:'#F4F9FF'};
+const cardR=(x,y,w,h,pl,r)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r==null?18:r}" fill="${pl.card}" stroke="${pl.cardS}"${pl.dark?' stroke-opacity=".25"':''}/>`;
+const svgWrap=(H,bg,body,defs)=>`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="${H}" viewBox="0 0 800 ${H}" font-family="Helvetica, Arial, sans-serif"><defs>${defs||''}</defs><rect width="800" height="${H}" fill="${bg}"/>${body}</svg>`;
+/* QR code generator: Kazuhiko Arase's QRCode for JavaScript (MIT licence, http://www.d-project.com/). QR Code is a registered trademark of DENSO WAVE INCORPORATED. */
+const QRCode=(function(){const defs={},cache={};function req(n){n=n.replace('./','');if(cache[n])return cache[n].exports;const m={exports:{}};cache[n]=m;defs[n](m,m.exports,req);return m.exports}
+defs['QRMode']=function(module,exports,require){module.exports = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+};
+defs['QRMaskPattern']=function(module,exports,require){module.exports = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+};
+defs['QRErrorCorrectLevel']=function(module,exports,require){module.exports = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+};
+defs['QRMath']=function(module,exports,require){var QRMath = {
+	glog : function(n) {
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+		return QRMath.LOG_TABLE[n];
+	},
+	gexp : function(n) {
+		while (n < 0) {
+			n += 255;
+		}
+		while (n >= 256) {
+			n -= 255;
+		}
+		return QRMath.EXP_TABLE[n];
+	},
+	EXP_TABLE : new Array(256),
+	LOG_TABLE : new Array(256)
+};
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+module.exports = QRMath;
+};
+defs['QRPolynomial']=function(module,exports,require){var QRMath = require('./QRMath');
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+	var offset = 0;
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+QRPolynomial.prototype = {
+	get : function(index) {
+		return this.num[index];
+	},
+	getLength : function() {
+		return this.num.length;
+	},
+	multiply : function(e) {
+		var num = new Array(this.getLength() + e.getLength() - 1);
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+		return new QRPolynomial(num, 0);
+	},
+	mod : function(e) {
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+		var num = new Array(this.getLength() );
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+		for (var x = 0; x < e.getLength(); x++) {
+			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+		}
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+module.exports = QRPolynomial;
+};
+defs['QRRSBlock']=function(module,exports,require){var QRErrorCorrectLevel = require('./QRErrorCorrectLevel');
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+QRRSBlock.RS_BLOCK_TABLE = [
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12],
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+	}
+	var length = rsBlock.length / 3;
+	var list = [];
+	for (var i = 0; i < length; i++) {
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount  = rsBlock[i * 3 + 2];
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );	
+		}
+	}
+	return list;
+};
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+module.exports = QRRSBlock;
+};
+defs['QRBitBuffer']=function(module,exports,require){function QRBitBuffer() {
+	this.buffer = [];
+	this.length = 0;
+}
+QRBitBuffer.prototype = {
+	get : function(index) {
+		var bufIndex = Math.floor(index / 8);
+		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+	},
+	put : function(num, length) {
+		for (var i = 0; i < length; i++) {
+			this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+		}
+	},
+	getLengthInBits : function() {
+		return this.length;
+	},
+	putBit : function(bit) {
+		var bufIndex = Math.floor(this.length / 8);
+		if (this.buffer.length <= bufIndex) {
+			this.buffer.push(0);
+		}
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+		this.length++;
+	}
+};
+module.exports = QRBitBuffer;
+};
+defs['QR8bitByte']=function(module,exports,require){var QRMode = require('./QRMode');
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+QR8bitByte.prototype = {
+	getLength : function() {
+		return this.data.length;
+	},
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			buffer.put(this.data.charCodeAt(i), 8);
+		}
+	}
+};
+module.exports = QR8bitByte;
+};
+defs['QRUtil']=function(module,exports,require){var QRMode = require('./QRMode');
+var QRPolynomial = require('./QRPolynomial');
+var QRMath = require('./QRMath');
+var QRMaskPattern = require('./QRMaskPattern');
+var QRUtil = {
+    PATTERN_POSITION_TABLE : [
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],        
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90],
+        [6, 28, 50, 72, 94],
+        [6, 26, 50, 74, 98],
+        [6, 30, 54, 78, 102],
+        [6, 28, 54, 80, 106],
+        [6, 32, 58, 84, 110],
+        [6, 30, 58, 86, 114],
+        [6, 34, 62, 90, 118],
+        [6, 26, 50, 74, 98, 122],
+        [6, 30, 54, 78, 102, 126],
+        [6, 26, 52, 78, 104, 130],
+        [6, 30, 56, 82, 108, 134],
+        [6, 34, 60, 86, 112, 138],
+        [6, 30, 58, 86, 114, 142],
+        [6, 34, 62, 90, 118, 146],
+        [6, 30, 54, 78, 102, 126, 150],
+        [6, 24, 50, 76, 102, 128, 154],
+        [6, 28, 54, 80, 106, 132, 158],
+        [6, 32, 58, 84, 110, 136, 162],
+        [6, 26, 54, 82, 110, 138, 166],
+        [6, 30, 58, 86, 114, 142, 170]
+    ],
+    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+    getBCHTypeInfo : function(data) {
+        var d = data << 10;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
+        }
+        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+    },
+    getBCHTypeNumber : function(data) {
+        var d = data << 12;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
+        }
+        return (data << 12) | d;
+    },
+    getBCHDigit : function(data) {
+        var digit = 0;
+        while (data !== 0) {
+            digit++;
+            data >>>= 1;
+        }
+        return digit;
+    },
+    getPatternPosition : function(typeNumber) {
+        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+    },
+    getMask : function(maskPattern, i, j) {
+        switch (maskPattern) {
+        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+        case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+        case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+        case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+        case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+        case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+        case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+        default :
+            throw new Error("bad maskPattern:" + maskPattern);
+        }
+    },
+    getErrorCorrectPolynomial : function(errorCorrectLength) {
+        var a = new QRPolynomial([1], 0);
+        for (var i = 0; i < errorCorrectLength; i++) {
+            a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+        }
+        return a;
+    },
+    getLengthInBits : function(mode, type) {
+        if (1 <= type && type < 10) {
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 10;
+            case QRMode.MODE_ALPHA_NUM  : return 9;
+            case QRMode.MODE_8BIT_BYTE  : return 8;
+            case QRMode.MODE_KANJI      : return 8;
+            default :
+                throw new Error("mode:" + mode);
+            }
+        } else if (type < 27) {
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 12;
+            case QRMode.MODE_ALPHA_NUM  : return 11;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 10;
+            default :
+                throw new Error("mode:" + mode);
+            }
+        } else if (type < 41) {
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 14;
+            case QRMode.MODE_ALPHA_NUM  : return 13;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 12;
+            default :
+                throw new Error("mode:" + mode);
+            }
+        } else {
+            throw new Error("type:" + type);
+        }
+    },
+    getLostPoint : function(qrCode) {
+        var moduleCount = qrCode.getModuleCount();
+        var lostPoint = 0;
+        var row = 0; 
+        var col = 0;
+        for (row = 0; row < moduleCount; row++) {
+            for (col = 0; col < moduleCount; col++) {
+                var sameCount = 0;
+                var dark = qrCode.isDark(row, col);
+                for (var r = -1; r <= 1; r++) {
+                    if (row + r < 0 || moduleCount <= row + r) {
+                        continue;
+                    }
+                    for (var c = -1; c <= 1; c++) {
+                        if (col + c < 0 || moduleCount <= col + c) {
+                            continue;
+                        }
+                        if (r === 0 && c === 0) {
+                            continue;
+                        }
+                        if (dark === qrCode.isDark(row + r, col + c) ) {
+                            sameCount++;
+                        }
+                    }
+                }
+                if (sameCount > 5) {
+                    lostPoint += (3 + sameCount - 5);
+                }
+            }
+        }
+        for (row = 0; row < moduleCount - 1; row++) {
+            for (col = 0; col < moduleCount - 1; col++) {
+                var count = 0;
+                if (qrCode.isDark(row,     col    ) ) count++;
+                if (qrCode.isDark(row + 1, col    ) ) count++;
+                if (qrCode.isDark(row,     col + 1) ) count++;
+                if (qrCode.isDark(row + 1, col + 1) ) count++;
+                if (count === 0 || count === 4) {
+                    lostPoint += 3;
+                }
+            }
+        }
+        for (row = 0; row < moduleCount; row++) {
+            for (col = 0; col < moduleCount - 6; col++) {
+                if (qrCode.isDark(row, col) && 
+                        !qrCode.isDark(row, col + 1) && 
+                         qrCode.isDark(row, col + 2) && 
+                         qrCode.isDark(row, col + 3) && 
+                         qrCode.isDark(row, col + 4) && 
+                        !qrCode.isDark(row, col + 5) && 
+                         qrCode.isDark(row, col + 6) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount - 6; row++) {
+                if (qrCode.isDark(row, col) &&
+                        !qrCode.isDark(row + 1, col) &&
+                         qrCode.isDark(row + 2, col) &&
+                         qrCode.isDark(row + 3, col) &&
+                         qrCode.isDark(row + 4, col) &&
+                        !qrCode.isDark(row + 5, col) &&
+                         qrCode.isDark(row + 6, col) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+        var darkCount = 0;
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount; row++) {
+                if (qrCode.isDark(row, col) ) {
+                    darkCount++;
+                }
+            }
+        }
+        var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+        lostPoint += ratio * 10;
+        return lostPoint;       
+    }
+};
+module.exports = QRUtil;
+};
+defs['index']=function(module,exports,require){
+var QR8bitByte = require('./QR8bitByte');
+var QRUtil = require('./QRUtil');
+var QRPolynomial = require('./QRPolynomial');
+var QRRSBlock = require('./QRRSBlock');
+var QRBitBuffer = require('./QRBitBuffer');
+function QRCode(typeNumber, errorCorrectLevel) {
+	this.typeNumber = typeNumber;
+	this.errorCorrectLevel = errorCorrectLevel;
+	this.modules = null;
+	this.moduleCount = 0;
+	this.dataCache = null;
+	this.dataList = [];
+}
+QRCode.prototype = {
+	addData : function(data) {
+		var newData = new QR8bitByte(data);
+		this.dataList.push(newData);
+		this.dataCache = null;
+	},
+	isDark : function(row, col) {
+		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+			throw new Error(row + "," + col);
+		}
+		return this.modules[row][col];
+	},
+	getModuleCount : function() {
+		return this.moduleCount;
+	},
+	make : function() {
+		if (this.typeNumber < 1 ){
+			var typeNumber = 1;
+			for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+				var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+				var buffer = new QRBitBuffer();
+				var totalDataCount = 0;
+				for (var i = 0; i < rsBlocks.length; i++) {
+					totalDataCount += rsBlocks[i].dataCount;
+				}
+				for (var x = 0; x < this.dataList.length; x++) {
+					var data = this.dataList[x];
+					buffer.put(data.mode, 4);
+					buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+					data.write(buffer);
+				}
+				if (buffer.getLengthInBits() <= totalDataCount * 8)
+					break;
+			}
+			this.typeNumber = typeNumber;
+		}
+		this.makeImpl(false, this.getBestMaskPattern() );
+	},
+	makeImpl : function(test, maskPattern) {
+		this.moduleCount = this.typeNumber * 4 + 17;
+		this.modules = new Array(this.moduleCount);
+		for (var row = 0; row < this.moduleCount; row++) {
+			this.modules[row] = new Array(this.moduleCount);
+			for (var col = 0; col < this.moduleCount; col++) {
+				this.modules[row][col] = null;//(col + row) % 3;
+			}
+		}
+		this.setupPositionProbePattern(0, 0);
+		this.setupPositionProbePattern(this.moduleCount - 7, 0);
+		this.setupPositionProbePattern(0, this.moduleCount - 7);
+		this.setupPositionAdjustPattern();
+		this.setupTimingPattern();
+		this.setupTypeInfo(test, maskPattern);
+		if (this.typeNumber >= 7) {
+			this.setupTypeNumber(test);
+		}
+		if (this.dataCache === null) {
+			this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+		}
+		this.mapData(this.dataCache, maskPattern);
+	},
+	setupPositionProbePattern : function(row, col)  {
+		for (var r = -1; r <= 7; r++) {
+			if (row + r <= -1 || this.moduleCount <= row + r) continue;
+			for (var c = -1; c <= 7; c++) {
+				if (col + c <= -1 || this.moduleCount <= col + c) continue;
+				if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) || 
+                     (0 <= c && c <= 6 && (r === 0 || r === 6) ) || 
+                     (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+					this.modules[row + r][col + c] = true;
+				} else {
+					this.modules[row + r][col + c] = false;
+				}
+			}		
+		}		
+	},
+	getBestMaskPattern : function() {
+		var minLostPoint = 0;
+		var pattern = 0;
+		for (var i = 0; i < 8; i++) {
+			this.makeImpl(true, i);
+			var lostPoint = QRUtil.getLostPoint(this);
+			if (i === 0 || minLostPoint >  lostPoint) {
+				minLostPoint = lostPoint;
+				pattern = i;
+			}
+		}
+		return pattern;
+	},
+	createMovieClip : function(target_mc, instance_name, depth) {
+		var qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
+		var cs = 1;
+		this.make();
+		for (var row = 0; row < this.modules.length; row++) {
+			var y = row * cs;
+			for (var col = 0; col < this.modules[row].length; col++) {
+				var x = col * cs;
+				var dark = this.modules[row][col];
+				if (dark) {
+					qr_mc.beginFill(0, 100);
+					qr_mc.moveTo(x, y);
+					qr_mc.lineTo(x + cs, y);
+					qr_mc.lineTo(x + cs, y + cs);
+					qr_mc.lineTo(x, y + cs);
+					qr_mc.endFill();
+				}
+			}
+		}
+		return qr_mc;
+	},
+	setupTimingPattern : function() {
+		for (var r = 8; r < this.moduleCount - 8; r++) {
+			if (this.modules[r][6] !== null) {
+				continue;
+			}
+			this.modules[r][6] = (r % 2 === 0);
+		}
+		for (var c = 8; c < this.moduleCount - 8; c++) {
+			if (this.modules[6][c] !== null) {
+				continue;
+			}
+			this.modules[6][c] = (c % 2 === 0);
+		}
+	},
+	setupPositionAdjustPattern : function() {
+		var pos = QRUtil.getPatternPosition(this.typeNumber);
+		for (var i = 0; i < pos.length; i++) {
+			for (var j = 0; j < pos.length; j++) {
+				var row = pos[i];
+				var col = pos[j];
+				if (this.modules[row][col] !== null) {
+					continue;
+				}
+				for (var r = -2; r <= 2; r++) {
+					for (var c = -2; c <= 2; c++) {
+						if (Math.abs(r) === 2 || 
+                            Math.abs(c) === 2 ||
+                            (r === 0 && c === 0) ) {
+							this.modules[row + r][col + c] = true;
+						} else {
+							this.modules[row + r][col + c] = false;
+						}
+					}
+				}
+			}
+		}
+	},
+	setupTypeNumber : function(test) {
+		var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+        var mod;
+		for (var i = 0; i < 18; i++) {
+			mod = (!test && ( (bits >> i) & 1) === 1);
+			this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+		}
+		for (var x = 0; x < 18; x++) {
+			mod = (!test && ( (bits >> x) & 1) === 1);
+			this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+		}
+	},
+	setupTypeInfo : function(test, maskPattern) {
+		var data = (this.errorCorrectLevel << 3) | maskPattern;
+		var bits = QRUtil.getBCHTypeInfo(data);
+        var mod;
+		for (var v = 0; v < 15; v++) {
+			mod = (!test && ( (bits >> v) & 1) === 1);
+			if (v < 6) {
+				this.modules[v][8] = mod;
+			} else if (v < 8) {
+				this.modules[v + 1][8] = mod;
+			} else {
+				this.modules[this.moduleCount - 15 + v][8] = mod;
+			}
+		}
+		for (var h = 0; h < 15; h++) {
+			mod = (!test && ( (bits >> h) & 1) === 1);
+			if (h < 8) {
+				this.modules[8][this.moduleCount - h - 1] = mod;
+			} else if (h < 9) {
+				this.modules[8][15 - h - 1 + 1] = mod;
+			} else {
+				this.modules[8][15 - h - 1] = mod;
+			}
+		}
+		this.modules[this.moduleCount - 8][8] = (!test);
+	},
+	mapData : function(data, maskPattern) {
+		var inc = -1;
+		var row = this.moduleCount - 1;
+		var bitIndex = 7;
+		var byteIndex = 0;
+		for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+			if (col === 6) col--;
+			while (true) {
+				for (var c = 0; c < 2; c++) {
+					if (this.modules[row][col - c] === null) {
+						var dark = false;
+						if (byteIndex < data.length) {
+							dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+						}
+						var mask = QRUtil.getMask(maskPattern, row, col - c);
+						if (mask) {
+							dark = !dark;
+						}
+						this.modules[row][col - c] = dark;
+						bitIndex--;
+						if (bitIndex === -1) {
+							byteIndex++;
+							bitIndex = 7;
+						}
+					}
+				}
+				row += inc;
+				if (row < 0 || this.moduleCount <= row) {
+					row -= inc;
+					inc = -inc;
+					break;
+				}
+			}
+		}
+	}
+};
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+	var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+	var buffer = new QRBitBuffer();
+	for (var i = 0; i < dataList.length; i++) {
+		var data = dataList[i];
+		buffer.put(data.mode, 4);
+		buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+		data.write(buffer);
+	}
+	var totalDataCount = 0;
+	for (var x = 0; x < rsBlocks.length; x++) {
+		totalDataCount += rsBlocks[x].dataCount;
+	}
+	if (buffer.getLengthInBits() > totalDataCount * 8) {
+		throw new Error("code length overflow. (" + 
+            buffer.getLengthInBits() + 
+            ">" +  
+            totalDataCount * 8 + 
+            ")");
+	}
+	if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+		buffer.put(0, 4);
+	}
+	while (buffer.getLengthInBits() % 8 !== 0) {
+		buffer.putBit(false);
+	}
+	while (true) {
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD0, 8);
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD1, 8);
+	}
+	return QRCode.createBytes(buffer, rsBlocks);
+};
+QRCode.createBytes = function(buffer, rsBlocks) {
+	var offset = 0;
+	var maxDcCount = 0;
+	var maxEcCount = 0;
+	var dcdata = new Array(rsBlocks.length);
+	var ecdata = new Array(rsBlocks.length);
+	for (var r = 0; r < rsBlocks.length; r++) {
+		var dcCount = rsBlocks[r].dataCount;
+		var ecCount = rsBlocks[r].totalCount - dcCount;
+		maxDcCount = Math.max(maxDcCount, dcCount);
+		maxEcCount = Math.max(maxEcCount, ecCount);
+		dcdata[r] = new Array(dcCount);
+		for (var i = 0; i < dcdata[r].length; i++) {
+			dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+		}
+		offset += dcCount;
+		var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+		var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+		var modPoly = rawPoly.mod(rsPoly);
+		ecdata[r] = new Array(rsPoly.getLength() - 1);
+		for (var x = 0; x < ecdata[r].length; x++) {
+            var modIndex = x + modPoly.getLength() - ecdata[r].length;
+			ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+		}
+	}
+	var totalCodeCount = 0;
+	for (var y = 0; y < rsBlocks.length; y++) {
+		totalCodeCount += rsBlocks[y].totalCount;
+	}
+	var data = new Array(totalCodeCount);
+	var index = 0;
+	for (var z = 0; z < maxDcCount; z++) {
+		for (var s = 0; s < rsBlocks.length; s++) {
+			if (z < dcdata[s].length) {
+				data[index++] = dcdata[s][z];
+			}
+		}
+	}
+	for (var xx = 0; xx < maxEcCount; xx++) {
+		for (var t = 0; t < rsBlocks.length; t++) {
+			if (xx < ecdata[t].length) {
+				data[index++] = ecdata[t][xx];
+			}
+		}
+	}
+	return data;
+};
+module.exports = QRCode;
+};
+const Q=req('index');Q.ECL=req('QRErrorCorrectLevel');return Q})();
+/* ===== WhatsApp QR ===== */
+const FQW={12:'monthly',4:'quarterly',2:'half-yearly',1:'yearly'};
+const qrCache={};let PLAN_LINK=null;
+function qrMatrix(text){
+  if(qrCache[text])return qrCache[text];
+  for(let v=1;v<=14;v++){try{const q=new QRCode(v,QRCode.ECL.L);q.addData(text);q.make();const n=q.getModuleCount(),m=[];for(let r=0;r<n;r++){const row=[];for(let c=0;c<n;c++)row.push(q.isDark(r,c)?1:0);m.push(row)}return qrCache[text]=m}catch(e){}}
+  return null;
+}
+function qrPath(m){let d='';m.forEach((row,r)=>{let c=0;while(c<row.length){if(row[c]){let e=c;while(e<row.length&&row[e])e++;d+=`M${c+3} ${r+3}h${e-c}v1h${c-e}z`;c=e}else c++}});return d}
+const qrSvg=(m,x,y,size)=>`<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="8" fill="#fff" stroke="#D6E4F5"/><path transform="translate(${x} ${y}) scale(${(size/(m.length+6)).toFixed(4)})" d="${qrPath(m)}" fill="#111111"/>`;
+function waInfo(P,S,T){
+  const q=document.getElementById('wq');if(q&&q.value==='0')return null;
+  let d=String($('ap').value||'').replace(/\D/g,'');
+  if(d.startsWith('00'))d=d.slice(2);
+  if(d.length===11&&d[0]==='0')d=d.slice(1);
+  if(d.length===10)d='91'+d;
+  if(d.length<8||d.length>15)return null;
+  const first=($('an').value||'').trim().split(/\s+/)[0]||'';
+  const amt=BC()+' '+Math.round(P).toLocaleString('en-US');
+  const plan=NN?`${amt} ${FQW[NN]} for ${S} yrs`:`${amt} lump sum for ${T} yrs`;
+  const url='https://wa.me/'+d+'?text='+encodeURIComponent(`Hi${first?' '+first:''}, I saw your plan: ${plan}. Please share details.`);
+  const m=qrMatrix(url);
+  return m?{url,m,phone:d}:null;
+}
+function waBlock(D,x,y,w,pl){
+  const wa=D.wa;if(!wa)return{s:'',h:0};
+  const tile=112,h=tile+32,t=D.tx,B=D.B,x0=x+20+tile+22,av=x+w-24-x0;
+  let s=cardR(x,y,w,h,pl)+qrSvg(wa.m,x+20,y+16,tile)
+    +t('Chat with me on WhatsApp',x0,y+44,22,av,B+`fill="${pl.ink}"`,.58)
+    +t('Scan the QR code with your phone camera to ask about this plan.',x0,y+68,13,av,`fill="${pl.mut}"`,.54);
+  if(D.an||D.ap)s+=t([D.an,D.ap].filter(Boolean).join('  •  '),x0,y+100,16,av,B+'fill="#1D4ED8"',.62);
+  return{s,h};
+}
+
+/* ===== SIP vs FD vs savings ===== */
+const cmpOn=()=>{const e=document.getElementById('cmq');return !e||e.value!=='0'};
+function cmpSeries(P,S,T,R,stp){
+  const fdr=Math.max(0,+$('fdr').value||0)/100,svr=Math.max(0,+$('svr').value||0)/100;
+  const a=simulate(P,R,S,T,stp),b=simulate(P,fdr,S,T,stp),c=simulate(P,svr,S,T,stp);
+  return{sip:a.val,fd:b.val,sv:c.val,inv:a.inv,fdr,svr};
+}
+function compareBlock(D,x,y,w,pl){
+  if(!cmpOn())return{s:'',h:0};
+  const {T,S,P,R,pc,U,infl,iOK,dfl}=D,t=D.tx,B=D.B,cs=D.cs||(D.cs=cmpSeries(P,S,T,R,STP));
+  const H=482,n=T,x0=x+24,cw=w-48,base=y+252,ch=140,e=n-1;
+  const ymax=Math.max(cs.sip[e],cs.fd[e],cs.sv[e],cs.inv[e],1);
+  const pts=a=>{const p=[x0+','+base];for(let i=0;i<n;i++)p.push((x0+cw*(i+1)/n).toFixed(1)+','+(base-ch*a[i]/ymax).toFixed(1));return p.join(' ')};
+  const C={sip:'#22A559',fd:'#F59E0B',sv:'#94A3B8',inv:'#6B7C93'};
+  const same=NN?`Same ${BS()}${P.toLocaleString(LB())} ${FQ().e} in each option`:`Same ${BS()}${P.toLocaleString(LB())} lump sum in each option`;
+  let s=cardR(x,y,w,H,pl)+t('SIP vs FD vs savings account',x+24,y+38,22,w-48,B+`fill="${pl.ink}"`,.58)+t(same+'. Illustrative.',x+24,y+60,13,w-48,`fill="${pl.mut}"`,.54);
+  [[C.sip,`SIP (${pc(R)}%)`,0],[C.fd,`FD (${pc(cs.fdr)}%)`,1],[C.sv,`Savings (${pc(cs.svr)}%)`,2],[C.inv,'You invest',3]].forEach(([c,l,i])=>{
+    const lx=x+24+[0,150,280,450][i];
+    s+=`<line x1="${lx}" y1="${y+86}" x2="${lx+20}" y2="${y+86}" stroke="${c}" stroke-width="4" stroke-linecap="round"${i===3?' stroke-dasharray="5 4"':''}/><text x="${lx+28}" y="${y+91}" font-size="13" fill="${pl.ink}">${l}</text>`});
+  [1,2,3].forEach(k=>{const gy=(base-ch*k/3).toFixed(1);s+=`<line x1="${x0}" y1="${gy}" x2="${x0+cw}" y2="${gy}" stroke="${pl.line}"/>`});
+  s+=`<polyline points="${pts(cs.inv)}" fill="none" stroke="${C.inv}" stroke-width="2.5" stroke-dasharray="6 5"/>`
+    +`<polyline points="${pts(cs.sv)}" fill="none" stroke="${C.sv}" stroke-width="3.5" stroke-linejoin="round"/>`
+    +`<polyline points="${pts(cs.fd)}" fill="none" stroke="${C.fd}" stroke-width="3.5" stroke-linejoin="round"/>`
+    +`<polyline points="${pts(cs.sip)}" fill="none" stroke="${C.sip}" stroke-width="4" stroke-linejoin="round"/>`
+    +`<circle cx="${x0+cw}" cy="${(base-ch*cs.sip[e]/ymax).toFixed(1)}" r="5.5" fill="${C.sip}" stroke="#fff" stroke-width="2"/>`
+    +`<text x="${x0+cw-10}" y="${(base-ch*cs.sip[e]/ymax-12).toFixed(1)}" font-size="18" font-weight="bold" fill="${pl.ink}" text-anchor="end">${U(cs.sip[e])}</text>`
+    +`<line x1="${x0}" y1="${base}" x2="${x0+cw}" y2="${base}" stroke="${pl.dark?'#BFD3F5':'#C9D6E6'}"/>`;
+  const step=n<=8?1:n<=16?2:5;let last=-99;
+  for(let yy=1;yy<=n;yy++){if(yy%step===0||(yy===n&&(yy-last)>=Math.ceil(step/2))){last=yy;s+=`<text x="${(x0+cw*yy/n).toFixed(1)}" y="${base+18}" font-size="12" fill="${pl.mut}" text-anchor="middle">${n<=10?'Yr '+yy:yy}</text>`}}
+  const hy=y+304,hf=`font-size="12" font-weight="bold" fill="#1D4ED8"`;
+  s+=`<text x="${x+24}" y="${hy}" ${hf}>Option</text><text x="${x+w*.5}" y="${hy}" ${hf} text-anchor="end">Return a year</text><text x="${x+w*.74}" y="${hy}" ${hf} text-anchor="end">Value at year ${T}</text><text x="${x+w-24}" y="${hy}" ${hf} text-anchor="end">${iOK?"In today's money":'Gain'}</text><line x1="${x+24}" y1="${hy+8}" x2="${x+w-24}" y2="${hy+8}" stroke="${pl.cardS}"/>`;
+  [['SIP (market-linked)',R,cs.sip,C.sip],['Fixed deposit (FD)',cs.fdr,cs.fd,C.fd],['Savings account',cs.svr,cs.sv,C.sv]].forEach(([nme,r,v,c],i)=>{
+    const ry=hy+16+i*32,tb=ry+21,end=v[e],fa=`font-size="14"${i===0?' font-weight="bold"':''} fill="${i===0?'#14803F':pl.ink}"`;
+    if(i===0)s+=`<rect x="${x+14}" y="${ry}" width="${w-28}" height="30" rx="8" fill="#22A559" fill-opacity="${pl.dark?.22:.13}"/>`;
+    s+=`<circle cx="${x+30}" cy="${tb-5}" r="5" fill="${c}"/><text x="${x+44}" y="${tb}" ${fa}>${nme}</text><text x="${x+w*.5}" y="${tb}" ${fa} text-anchor="end">${pc(r)}%</text><text x="${x+w*.74}" y="${tb}" ${fa} text-anchor="end">${U(end)}</text><text x="${x+w-24}" y="${tb}" ${fa} text-anchor="end">${iOK?U(end/dfl):U(end-cs.inv[e])}</text>`});
+  const d=cs.sip[e]-cs.fd[e];
+  s+=t(`At the assumed ${pc(R)}%, the SIP could finish ${U(Math.abs(d))} ${d>=0?'ahead of':'behind'} the FD. SIP returns are not guaranteed.`,x+24,y+H-42,14,w-48,B+`fill="${pl.ink}"`,.6)
+    +t('FD and savings rates are assumptions and vary by bank. SIP value may be lower. Taxes are not included.',x+24,y+H-20,11.5,w-48,`fill="${pl.mut}"`,.52);
+  return{s,h:H};
+}
+
+/* ===== Investment frequency: monthly / quarterly / half-yearly / lump sum ===== */
+const FQN={12:{u:'month',a:'Monthly',e:'every month',p:'a month',pl:'months'},4:{u:'quarter',a:'Quarterly',e:'every quarter',p:'a quarter',pl:'quarters'},2:{u:'half-year',a:'Half-yearly',e:'every half-year',p:'every half-year',pl:'half-years'},1:{u:'year',a:'Yearly',e:'every year',p:'a year',pl:'years'},0:{u:'lump sum',a:'Lump sum',e:'one time',p:'one time',pl:''}};
+let NN=12;
+const fqv=()=>{const e=document.getElementById('fq'),v=e?e.value:'12';return v==='L'?0:(+v||12)};
+const FQ=()=>FQN[NN];
+const fqLow=()=>FQ().a.toLowerCase();
+let INVARR=null,STP=0;
+const invAt=(P,S,y)=>INVARR&&INVARR.length>=y?INVARR[y-1]:(NN?P*NN*Math.min(y,S):P);
+function fvAt(P,R,S,y){
+  if(!NN)return P*Math.pow(1+R,y);
+  const cnt=NN*Math.min(y,S),k=12/NN;
+  const x=Math.pow(1+R,1/12),M=12*y;
+  if(!isFinite(x)||Math.abs(x-1)<1e-12)return P*cnt;
+  return P*Math.pow(x,M)*(1-Math.pow(x,-k*cnt))/(1-Math.pow(x,-k));
+}
+const payTxt=(P,S)=>NN?`${BS()}${P.toLocaleString(LB())} x ${NN*S} ${FQ().pl}${STP>0?', +'+(+(STP*100).toFixed(2))+'% a year':''}`:'One-time investment';
+const investPhrase=S=>NN?`${fqLow()} investing at the start of each ${FQ().u} for ${yr(S)}`:`a one-time investment at the start, held for ${yr(S)}`;
+function parts(D){
+  const {P,S,T,R,L,H2,inv,vT,gain,lo,hi,isU,isI,CUR,FX,fxs,RS,pc,U,BC,BS,LB,yr,INM,iOK,vR,realG,dfl}=D,cn=currencyMeta[CUR].name,cs=currencyMeta[CUR].symbol;
+  const kpis=[
+    {l:'Total invested',v:`${BS()}${Math.round(inv).toLocaleString(LB())} ${BC()}`,s:payTxt(P,S),x:isU?'':`≈ ${RS(inv*FX)}`,f:'#E8F0FF',st:'#BFD3F5',vc:'#0B1F4B',xc:'#1D4ED8'},
+    {l:`Value at ${yr(T)}`,v:`${U(vT)} ${BC()}`,s:`Gain ${U(gain)} ${BC()}`,x:isU?'':`≈ ${RS(vT*FX)}`,f:'#E3F6EA',st:'#B5E0C4',vc:'#14803F',xc:'#14803F'},
+    isI?{l:'If USD strengthens vs INR',v:`${RS(lo*FX)}-${RS(hi*FX)}`,s:`${pc(L)}-${pc(H2)}% a year`,x:'Indicative scenario only',f:'#D5F3E0',st:'#8FD3AA',vc:'#14803F',xc:'#14803F'}
+      :{l:'Total gain',v:`${U(gain)} ${BC()}`,s:'Growth on your investment',x:isU?`${(vT/inv).toFixed(2)}x amount invested`:`≈ ${RS(gain*FX)}`,f:'#D5F3E0',st:'#8FD3AA',vc:'#14803F',xc:'#14803F'}];
+  const planRows=[[FQ().a+' investment',`${BS()}${P.toLocaleString(LB())} ${BC()}`],['Investment period',T>S?`${S}y SIP + ${T-S}y hold`:yr(S)],['Assumed return',`${pc(R)}% (illustrative)`],[isI?'USD strengthening':'Currency',isI?`${pc(L)}-${pc(H2)}% a year`:isU?BC()+' (no conversion)':`USD to ${CUR}`]];
+  const sumTitle=isI?'Currency scenario':isU?'Investment summary':'In '+cn;
+  const sumRows=isI?[[`Year ${T} value (USD)`,`${U(vT)} ${BC()}`],['1 USD =',`${cs}${fxs}`],['USD strengthens',`${pc(L)}-${pc(H2)}% a year`]]
+    :isU?[['Total invested',`${U(inv)} ${BC()}`],[`Year ${T} value`,`${U(vT)} ${BC()}`],['Total gain',`${U(gain)} ${BC()}`]]
+    :[['Total invested',RS(inv*FX)],[`Year ${T} value`,RS(vT*FX)],['Total gain',RS(gain*FX)]];
+  const sumExtra=isI?[[`Local equivalent: ${RS(vT*FX)}`,1],[`Scenario value: ${RS(lo*FX)} - ${RS(hi*FX)}`,0]]
+    :isU?[[`Growth multiple: ${(vT/inv).toFixed(2)}x`,1],[`Gain as % of invested: ${Math.round(gain/inv*100)}%`,0]]
+    :[[`1 USD = ${cs}${fxs}`,1],[`Indicative conversion at today's rate.`,0]];
+  const infl=iOK?[
+    {a:'Inflation assumed',b:pc(D.infl)+'% a year',c:'Cost of living rises every year',f:'#E8F0FF',st:'#BFD3F5',vc:'#0B1F4B',d:''},
+    {a:"Value in today's money",b:U(vR)+' '+BC(),c:isU?'vs '+U(vT)+' '+BC()+' nominal':'≈ '+RS(vR*FX),f:'#E3F6EA',st:'#B5E0C4',vc:'#14803F',d:isI?'USD +'+pc(L)+'-'+pc(H2)+'%: '+RS(lo*FX/dfl)+'-'+RS(hi*FX/dfl):''},
+    {a:'Real growth a year',b:pc(realG)+'%',c:pc(R)+'% return less '+pc(D.infl)+'% inflation',f:'#D5F3E0',st:'#8FD3AA',vc:'#14803F',d:''}]:[];
+  const ben=INM?[['Market exposure','Across Indian markets'],['Compounding power','Returns can earn returns'],['Rupee investing','No currency conversion'],['Access your money','Per scheme terms']]:[['Global exposure','Across global markets'],['Compounding power','Returns can earn returns'],['Currency effect','May add to returns'],['Access your money','Per scheme terms']];
+  const disc=[`Illustrative only. Assumes ${pc(R)}% effective annual return and ${investPhrase(S)}.`,!isI?`Excludes taxes and fees.`:`Currency scenario assumes USD strengthens ${pc(L)}-${pc(H2)}% a year against ${cn}. Excludes taxes.`,`Past performance does not guarantee future returns. Actual returns may be lower or higher and capital may be lost.`,isU?`Investment is made in ${BC()}.`:`Investment is made in USD. ${cn} values use 1 USD = ${cs}${fxs} and are indicative.`];
+  return{kpis,planRows,sumTitle,sumRows,sumExtra,infl,ben,disc,title2:INM?'Indian Growth':'Global Growth'};
+}
+function tableCard(D,x,y,w,title,rows,extras,pl,H){
+  const tx=D.tx,B=D.B;H=H||216;
+  let s=cardR(x,y,w,H,pl)+tx(title,x+24,y+36,22,w-48,B+`fill="${pl.ink}"`,.58);
+  rows.forEach(([l,v],i)=>{const yy=y+74+i*36;
+    s+=tx(l,x+24,yy,15,w*.42,`fill="${pl.mut}"`,.54)+tx(v,x+w-24,yy,16,w*.5,B+`fill="${pl.ink}" text-anchor="end"`,.62);
+    if(i<rows.length-1)s+=`<line x1="${x+24}" y1="${yy+14}" x2="${x+w-24}" y2="${yy+14}" stroke="${pl.line}"${pl.dark?' opacity=".25"':''}/>`});
+  (extras||[]).forEach(([t,b],i)=>{const yy=y+74+rows.length*36+4+i*20;s+=tx(t,x+24,yy,b?14:13,w-48,(b?B:'')+`fill="${b?'#22A559':pl.mut}"`,.62)});
+  return{s,h:H};
+}
+function kpiTiles(D,x,y,w,pl,vertical){
+  const tx=D.tx,B=D.B,p=parts(D);let s='';
+  if(vertical){p.kpis.forEach((k,i)=>{const yy=y+i*96;
+    s+=`<rect x="${x}" y="${yy}" width="${w}" height="88" rx="14" fill="${k.f}" stroke="${k.st}"/>`+tx(k.l,x+20,yy+28,14,w*.5,'fill="#44546A"',.54)+tx(k.s,x+20,yy+50,12,w*.5,'fill="#44546A"')+(k.x?tx(k.x,x+20,yy+72,12,w*.5,B+`fill="${k.xc}"`,.6):'')+tx(k.v,x+w-20,yy+52,26,w*.52,B+`fill="${k.vc}" text-anchor="end"`,.62)});
+    return{s,h:p.kpis.length*96-10};}
+  const cw=(w-24)/3;
+  p.kpis.forEach((k,i)=>{const xx=x+i*(cw+12);
+    s+=`<rect x="${xx}" y="${y}" width="${cw}" height="104" rx="14" fill="${k.f}" stroke="${k.st}"/>`+tx(k.l,xx+20,y+26,14,cw-40,'fill="#44546A"',.54)+tx(k.v,xx+20,y+58,25,cw-40,B+`fill="${k.vc}"`,.62)+tx(k.s,xx+20,y+78,12,cw-40,'fill="#44546A"')+(k.x?tx(k.x,xx+20,y+95,13,cw-40,B+`fill="${k.xc}"`,.6):'')});
+  return{s,h:104};
+}
+function inflBlock(D,x,y,w,vertical){
+  const p=parts(D),tx=D.tx,B=D.B;if(!p.infl.length)return{s:'',h:0};let s='';
+  if(vertical){p.infl.forEach((c,i)=>{const yy=y+i*94;
+    s+=`<rect x="${x}" y="${yy}" width="${w}" height="84" rx="14" fill="${c.f}" stroke="${c.st}"/>`+tx(c.a,x+20,yy+28,14,w*.42,'fill="#44546A"',.54)+tx(c.c,x+20,yy+50,12,w*.5,'fill="#44546A"')+(c.d?tx(c.d,x+20,yy+70,12,w-40,B+'fill="#14803F"',.6):'')+tx(c.b,x+w-20,yy+48,24,w*.5,B+`fill="${c.vc}" text-anchor="end"`,.62)});
+    return{s,h:p.infl.length*94-10};}
+  const cw=(w-24)/3;
+  p.infl.forEach((c,i)=>{const xx=x+i*(cw+12);
+    s+=`<rect x="${xx}" y="${y}" width="${cw}" height="104" rx="14" fill="${c.f}" stroke="${c.st}"/>`+tx(c.a,xx+20,y+26,14,cw-40,'fill="#44546A"',.54)+tx(c.b,xx+20,y+60,24,cw-40,B+`fill="${c.vc}"`,.62)+tx(c.c,xx+20,y+80,12,cw-40,'fill="#44546A"')+(c.d?tx(c.d,xx+20,y+97,12,cw-40,B+'fill="#14803F"',.6):'')});
+  return{s,h:104};
+}
+function fundBlock(D,x,y,w,pl){
+  if(!(D.fnm||D.fdl.length))return{s:'',h:0};const tx=D.tx,B=D.B,fdl=D.fdl,rowsN=Math.ceil(fdl.length/2);
+  const barY=y+50,r0=barY+34,h=fdl.length?(r0-y)+(rowsN-1)*50+38:72,half=(w-48)/2;
+  let s=cardR(x,y,w,h,pl)+tx(D.fnm||'Fund details',x+24,y+36,22,w-48,B+`fill="${pl.ink}"`,.58)+`<rect x="${x+24}" y="${barY}" width="44" height="4" rx="2" fill="#1D6BFF"/>`;
+  fdl.forEach(([a,b],i)=>{const xx=x+24+(i%2)*(half+10),yy=r0+Math.floor(i/2)*50;
+    s+=a?tx(a,xx,yy,12,half-10,`fill="${pl.mut}"`,.54)+tx(b,xx,yy+20,15,half-10,B+`fill="${pl.ink}"`,.6):tx(b,xx,yy+10,15,half-10,B+`fill="${pl.ink}"`,.6)});
+  return{s,h};
+}
+function benefitsBlock(D,x,y,w,pl){
+  const p=parts(D),tx=D.tx,cw=w/4;
+  let s=`<rect x="${x}" y="${y}" width="${w}" height="92" rx="16" fill="${pl.dark?'#1E3A8A':'#0F2A55'}"/>`;
+  p.ben.forEach(([a,b],i)=>{const cx=x+cw*(i+.5);
+    s+=`<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="${cx}" cy="${y+30}" r="14"/><path d="M${cx-6},${y+30} l4,5 l8,-10"/></g>`+tx(a,cx,y+66,15,cw-14,'font-weight="bold" fill="#fff" text-anchor="middle"',.6)+tx(b,cx,y+82,12,cw-14,'fill="#BBD0F0" text-anchor="middle"',.54)});
+  return{s,h:92};
+}
+function footerBlock(D,x,y,w,pl){
+  const p=parts(D),tx=D.tx,B=D.B;let s='';
+  p.disc.forEach((t,i)=>{s+=tx(t,x,y+14+i*16,12,w,`fill="${pl.mut}"`,.52)});
+  let h=70;
+  if(D.hasAdv){const ay=y+74;s+=`<rect x="${x}" y="${ay}" width="${w}" height="38" rx="10" fill="#E8F0FF" stroke="#BFD3F5"/>`+(D.an?tx(`Prepared by ${D.an}`,x+18,ay+24,15,w*.6,B+'fill="#0B1F4B"',.62):'')+(D.ap?tx(D.ap,x+w-18,ay+24,15,w*.36,B+'fill="#1D4ED8" text-anchor="end"',.62):'');h=120}
+  if(D.wa){const wb=waBlock(D,x,y+h+4,w,pl);s+=wb.s;h+=4+wb.h}
+  return{s,h};
+}
+function barsSvg(D,x,y,w,h,pl,opt){
+  const {vals,T,S,P,vT,U}=D;opt=opt||{};const slot=w/T,bw=Math.min(60,slot*.68),sc=(h-34)/vT,step=T<=8?1:T<=16?2:5,base=y+h;let s='',last=-99,labs='';
+  for(let i=0;i<T;i++){const yy=i+1,cx=x+slot*(i+.5),bx=cx-bw/2,tot=vals[i]*sc,ih=Math.min(invAt(P,S,yy)*sc,tot);
+    s+=`<rect x="${bx.toFixed(1)}" y="${(base-ih).toFixed(1)}" width="${bw.toFixed(1)}" height="${ih.toFixed(1)}" rx="${opt.round?4:0}" fill="#4C84F5"/>`;
+    if(tot-ih>.1)s+=`<rect x="${bx.toFixed(1)}" y="${(base-tot).toFixed(1)}" width="${bw.toFixed(1)}" height="${(tot-ih).toFixed(1)}" rx="${opt.round?4:0}" fill="#22A559"/>`;
+    if((yy%step===0)||(yy===T&&(yy-last)>=Math.ceil(step/2))){last=yy;labs+=`<text x="${cx.toFixed(1)}" y="${base+20}">${T<=10?'Yr '+yy:yy}</text>`}}
+  const lx=Math.min(x+slot*(T-.5),x+w-30);
+  s+=`<text x="${lx.toFixed(1)}" y="${(base-vT*sc-10).toFixed(1)}" font-size="20" font-weight="bold" fill="${pl.ink}" text-anchor="middle">${U(vT)}</text>`+`<line x1="${x}" y1="${base}" x2="${x+w}" y2="${base}" stroke="${pl.dark?'#BFD3F5':'#C9D6E6'}"${pl.dark?' opacity=".4"':''}/><g font-size="13" fill="${pl.mut}" text-anchor="middle">${labs}</g>`;
+  return s;
+}
+function areaSvg(D,x,y,w,h,pl){
+  const {vals,T,S,P,vT,U}=D,base=y+h,top=y+30,hh=h-30;let vp=[`${x},${base}`],ip=[`${x},${base}`],labs='',last=-99;const step=T<=8?1:T<=16?2:5;
+  for(let i=0;i<T;i++){const yy=i+1,px=x+w*yy/T;vp.push(`${px.toFixed(1)},${(base-hh*vals[i]/vT).toFixed(1)}`);ip.push(`${px.toFixed(1)},${(base-hh*Math.min(invAt(P,S,yy),vals[i])/vT).toFixed(1)}`);
+    if((yy%step===0)||(yy===T&&(yy-last)>=Math.ceil(step/2))){last=yy;labs+=`<text x="${px.toFixed(1)}" y="${base+20}">${T<=10?'Yr '+yy:yy}</text>`}}
+  const ex=x+w,ey=base-hh;
+  return `<polygon points="${vp.join(' ')} ${ex},${base}" fill="#22A559" fill-opacity=".28"/><polyline points="${vp.join(' ')}" fill="none" stroke="#22A559" stroke-width="3.5" stroke-linejoin="round"/><polygon points="${ip.join(' ')} ${ex},${base}" fill="#4C84F5" fill-opacity=".45"/><polyline points="${ip.join(' ')}" fill="none" stroke="#4C84F5" stroke-width="3" stroke-linejoin="round"/>`
+   +`<circle cx="${ex}" cy="${ey}" r="6" fill="#22A559" stroke="#fff" stroke-width="2"/><text x="${ex-10}" y="${ey-12}" font-size="20" font-weight="bold" fill="${pl.ink}" text-anchor="end">${U(vT)}</text><line x1="${x}" y1="${base}" x2="${ex}" y2="${base}" stroke="${pl.dark?'#BFD3F5':'#C9D6E6'}"${pl.dark?' opacity=".4"':''}/><g font-size="13" fill="${pl.mut}" text-anchor="middle">${labs}</g>`;
+}
+const legend=(x,y,pl)=>`<rect x="${x}" y="${y}" width="14" height="14" rx="3" fill="#4C84F5"/><text x="${x+22}" y="${y+12}" font-size="14" fill="${pl.ink}">You invest (cumulative)</text><rect x="${x+196}" y="${y}" width="14" height="14" rx="3" fill="#22A559"/><text x="${x+218}" y="${y+12}" font-size="14" fill="${pl.ink}">Growth</text>`;
+const holdNote=(D,x,y,pl)=>`<text x="${x}" y="${y}" font-size="13" fill="${pl.mut}" text-anchor="end">${D.T>D.S?`No new deposits after year ${D.S}; value keeps growing`:`Value at the end of year ${D.T}`}</text>`;
+function donut(cx,cy,r,sw,frac){const C=2*Math.PI*r;return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#22A559" stroke-width="${sw}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#4C84F5" stroke-width="${sw}" stroke-dasharray="${(C*frac).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`}
+const headTitle=(D)=>({co:D.co?D.co+' • '+(D.fnU||'SMARTER SIP PLANNING'):(D.fnU||'SMARTER SIP PLANNING')});
+
+/* ---------- 1. DASHBOARD ---------- */
+LAYOUTS.dashboard=D=>{
+  const p=parts(D),pl=PAL(0),tx=D.tx,B=D.B;let o='',y=0;
+  o+=`<rect width="800" height="190" fill="#fff"/><rect y="188" width="800" height="2" fill="#D6E4F5"/>`+tx(headTitle(D).co,40,46,16,720,'fill="#1E3A8A" letter-spacing="2"',.62)
+   +`<text x="40" y="100" font-size="40" font-weight="bold" fill="#0B1F4B">Your SIP Journey with <tspan fill="#1D6BFF">${p.title2}</tspan></text>`
+   +tx(D.line1,40,132,18,720,'fill="#0B1F4B"')+(D.line2?tx(D.line2,40,156,18,720,'fill="#0B1F4B"'):'')+(D.nm?tx(`Prepared for ${D.nm}`,40,180,16,720,B+'fill="#1D6BFF"',.62):'');
+  y=210;
+  const frac=Math.min(1,D.inv/D.vT);
+  o+=`<rect x="40" y="${y}" width="720" height="200" rx="20" fill="#0F2A55"/>`+tx(`Value at ${D.yr(D.T)} (${D.BC()})`,68,y+44,16,420,'fill="#BBD0F0"',.54)+tx(`${D.U(D.vT)}`,68,y+110,64,420,B+'fill="#fff"',.6)
+   +tx(`from ${D.U(D.inv)} invested  •  gain ${D.U(D.gain)}`,68,y+142,16,430,'fill="#BBD0F0"',.54)+(D.isU?tx(`${(D.vT/D.inv).toFixed(2)}x your money`,68,y+172,18,430,B+'fill="#4DA3FF"',.6):tx(`≈ ${D.RS(D.vT*D.FX)}`,68,y+172,20,430,B+'fill="#4DA3FF"',.6))
+   +donut(620,y+100,62,22,frac)+`<text x="620" y="${y+96}" font-size="26" font-weight="bold" fill="#fff" text-anchor="middle">${Math.round(frac*100)}%</text><text x="620" y="${y+116}" font-size="12" fill="#BBD0F0" text-anchor="middle">invested</text>`
+   +`<rect x="700" y="${y+70}" width="10" height="10" rx="2" fill="#4C84F5"/><text x="716" y="${y+80}" font-size="11" fill="#BBD0F0">Invest</text><rect x="700" y="${y+90}" width="10" height="10" rx="2" fill="#22A559"/><text x="716" y="${y+100}" font-size="11" fill="#BBD0F0">Growth</text>`;
+  y+=222;
+  o+=cardR(40,y,720,290,pl)+`<text x="64" y="${y+38}" font-size="24" font-weight="bold" fill="#0B1F4B">Power of Compounding</text>`+legend(64,y+54,pl)+areaSvg(D,76,y+86,650,150,pl)+holdNote(D,736,y+276,pl);
+  y+=312;
+  const k=kpiTiles(D,40,y,720,pl);o+=k.s;y+=k.h+20;
+  const a=tableCard(D,40,y,350,'Your SIP plan',p.planRows,[],pl),b=tableCard(D,410,y,350,p.sumTitle,p.sumRows,p.sumExtra,pl);o+=a.s+b.s;y+=a.h+22;
+  const inf=inflBlock(D,40,y,720);if(inf.h){o+=inf.s;y+=inf.h+22}
+  const f=fundBlock(D,40,y,720,pl);if(f.h){o+=f.s;y+=f.h+22}
+  const cb=compareBlock(D,40,y,720,pl);if(cb.h){o+=cb.s;y+=cb.h+22}
+  const be=benefitsBlock(D,40,y,720,pl);o+=be.s;y+=be.h+22;
+  const ft=footerBlock(D,40,y,720,pl);o+=ft.s;y+=ft.h+20;
+  return svgWrap(y,'#F4F9FF',o);
+};
+
+/* ---------- 2. TIMELINE ---------- */
+LAYOUTS.timeline=D=>{
+  const p=parts(D),pl=PAL(0),tx=D.tx,B=D.B;let o='',y=0,spine='',nodes='';
+  o+=`<rect width="800" height="260" fill="#0F2A55"/><circle cx="720" cy="40" r="120" fill="#1E3A8A" opacity=".6"/><circle cx="780" cy="190" r="70" fill="#1D6BFF" opacity=".25"/>`
+   +tx(headTitle(D).co,40,50,16,560,'fill="#BBD0F0" letter-spacing="2"',.62)+`<text x="40" y="112" font-size="46" font-weight="bold" fill="#fff">Your SIP Journey</text><text x="40" y="164" font-size="46" font-weight="bold" fill="#fff">with <tspan fill="#4DA3FF">${p.title2}</tspan></text>`
+   +tx(D.line1,40,200,17,700,'fill="#fff"')+(D.line2?tx(D.line2,40,222,17,700,'fill="#BBD0F0"'):'')+(D.nm?tx(`Prepared for ${D.nm}`,40,247,15,500,B+'fill="#4DA3FF"',.62):'');
+  y=290;
+  const SX=82,CX=124,CW=636;let first=y;
+  let lastN=0;const node=(n,col,title,h,content)=>{lastN=y+22;const s=`<circle cx="${SX}" cy="${y+22}" r="18" fill="${col}"/><text x="${SX}" y="${y+28}" font-size="16" font-weight="bold" fill="#fff" text-anchor="middle">${n}</text>`+cardR(CX,y,CW,h,pl,16)+tx(title,CX+22,y+34,20,CW-44,B+'fill="#0B1F4B"',.58)+content;nodes+=s;y+=h+22};
+  // 1 start
+  {const rows=p.planRows.map(([l,v],i)=>{const cx=CX+22+(i%2)*(CW/2-6),yy=y+62+Math.floor(i/2)*46;return tx(l,cx,yy,12,CW/2-40,'fill="#44546A"',.54)+tx(v,cx,yy+20,16,CW/2-40,B+'fill="#0B1F4B"',.62)}).join('');node(1,'#1D6BFF','Start: your SIP plan',150,rows)}
+  // 2 invest
+  {const k=p.kpis[0];node(2,'#4C84F5',`You invest for ${D.yr(D.S)}`,120,tx(k.v,CX+22,y+80,30,CW*.55,B+'fill="#0B1F4B"',.62)+tx(k.s,CX+22,y+102,13,CW*.55,'fill="#44546A"')+(k.x?tx(k.x,CX+CW-22,y+78,16,CW*.4,B+'fill="#1D4ED8" text-anchor="end"',.62):''))}
+  // 3 year by year horizontal bars
+  {const rowsN=Math.min(D.T,12),stepY=Math.max(1,Math.ceil(D.T/rowsN)),ys=[];for(let i=stepY;i<=D.T;i+=stepY)ys.push(i);if(ys[ys.length-1]!==D.T)ys.push(D.T);
+   const rh=28,h=76+ys.length*rh+44;let c=legend(CX+22,y+50,pl).replace(/font-size="14"/g,'font-size="12"');
+   ys.forEach((yy,i)=>{const ry=y+88+i*rh,bwMax=CW-44-160,tot=D.vals[yy-1]/D.vT*bwMax,ih=Math.min(invAt(D.P,D.S,yy),D.vals[yy-1])/D.vT*bwMax;
+     c+=`<text x="${CX+22}" y="${ry+14}" font-size="13" fill="#44546A">${D.T<=10?'Yr '+yy:'Year '+yy}</text><rect x="${CX+84}" y="${ry}" width="${ih.toFixed(1)}" height="18" rx="3" fill="#4C84F5"/><rect x="${(CX+84+ih).toFixed(1)}" y="${ry}" width="${Math.max(0,tot-ih).toFixed(1)}" height="18" rx="3" fill="#22A559"/>`+`<text x="${(CX+84+tot+8).toFixed(1)}" y="${ry+14}" font-size="13" font-weight="bold" fill="#0B1F4B">${D.U(D.vals[yy-1])}</text>`});
+   c+=holdNote(D,CX+CW-22,y+h-14,pl);
+   node(3,'#22A559','Year by year growth',h,c)}
+  // 4 result
+  {const k=p.kpis[1],g=p.kpis[2];node(4,'#14803F',`Your result at ${D.yr(D.T)}`,150,tx(k.v,CX+22,y+86,38,CW*.6,B+'fill="#14803F"',.62)+tx(k.s,CX+22,y+108,14,CW*.6,'fill="#44546A"')+(k.x?tx(k.x,CX+22,y+130,15,CW*.6,B+'fill="#14803F"',.6):'')
+    +`<line x1="${CX+CW*.62}" y1="${y+58}" x2="${CX+CW*.62}" y2="${y+130}" stroke="#E1EAF5"/>`+tx(g.l,CX+CW*.62+18,y+78,12,CW*.34,'fill="#44546A"',.54)+tx(g.v,CX+CW*.62+18,y+106,19,CW*.34,B+'fill="#14803F"',.62)+tx(g.s,CX+CW*.62+18,y+124,12,CW*.34,'fill="#44546A"'))}
+  // 5 summary
+  {let c='';p.sumRows.forEach(([l,v],i)=>{const yy=y+68+i*34;c+=tx(l,CX+22,yy,14,CW*.4,'fill="#44546A"',.54)+tx(v,CX+CW-22,yy,16,CW*.5,B+'fill="#0B1F4B" text-anchor="end"',.62)+`<line x1="${CX+22}" y1="${yy+12}" x2="${CX+CW-22}" y2="${yy+12}" stroke="#E1EAF5"/>`});
+   p.sumExtra.forEach(([t,b],i)=>{c+=tx(t,CX+22,y+68+3*34+8+i*20,b?14:13,CW-44,(b?B:'')+`fill="${b?'#22A559':'#44546A'}"`,.62)});
+   node(5,'#1E3A8A',p.sumTitle,68+3*34+60,c)}
+  // 6 inflation
+  if(p.infl.length){const inf=inflBlock(D,CX+22,y+54,CW-44,true);node(6,'#14803F',"In today's money",inf.h+74,inf.s)}
+  // spine behind
+  spine=`<line x1="${SX}" y1="${first+22}" x2="${SX}" y2="${lastN}" stroke="#BFD3F5" stroke-width="3"/>`;
+  o+=spine+nodes;
+  const f=fundBlock(D,40,y,720,pl);if(f.h){o+=f.s;y+=f.h+22}
+  const cb=compareBlock(D,40,y,720,pl);if(cb.h){o+=cb.s;y+=cb.h+22}
+  const be=benefitsBlock(D,40,y,720,pl);o+=be.s;y+=be.h+22;
+  const ft=footerBlock(D,40,y,720,pl);o+=ft.s;y+=ft.h+20;
+  return svgWrap(y,'#F4F9FF',o);
+};
+
+/* ---------- 3. POSTER (dark, bold) ---------- */
+LAYOUTS.poster=D=>{
+  const p=parts(D),pl=PAL(1),tx=D.tx,B=D.B;let o='',y=0;
+  o+=`<circle cx="740" cy="60" r="190" fill="#1E3A8A" opacity=".55"/><circle cx="60" cy="520" r="150" fill="#1D6BFF" opacity=".12"/>`+tx(headTitle(D).co,40,52,15,720,'fill="#BBD0F0" letter-spacing="3"',.64)
+   +`<text x="40" y="128" font-size="58" font-weight="bold" fill="#fff">Your SIP</text><text x="40" y="190" font-size="58" font-weight="bold" fill="#fff">Journey</text><text x="40" y="236" font-size="30" font-weight="bold" fill="#4DA3FF">with ${p.title2}</text>`
+   +tx(D.line1,40,276,17,720,'fill="#fff"')+(D.line2?tx(D.line2,40,299,17,720,'fill="#BBD0F0"'):'')+(D.nm?tx(`Prepared for ${D.nm}`,40,326,16,720,B+'fill="#4DA3FF"',.62):'');
+  y=360;const frac=Math.min(1,D.inv/D.vT);
+  o+=`<text x="400" y="${y+18}" font-size="16" fill="#BBD0F0" text-anchor="middle" letter-spacing="2">VALUE AT ${D.yr(D.T).toUpperCase()}</text>`+tx(`${D.U(D.vT)}`,400,y+104,92,720,B+'fill="#fff" text-anchor="middle"',.6)+tx(`${D.BC()}${D.isU?'':'  •  ≈ '+D.RS(D.vT*D.FX)}`,400,y+136,18,720,'fill="#4DA3FF" text-anchor="middle"',.6);
+  y+=176;
+  o+=donut(160,y+90,72,26,frac)+`<text x="160" y="${y+88}" font-size="30" font-weight="bold" fill="#fff" text-anchor="middle">${Math.round(frac*100)}%</text><text x="160" y="${y+108}" font-size="13" fill="#BBD0F0" text-anchor="middle">is your money</text>`;
+  p.kpis.forEach((k,i)=>{const yy=y+22+i*64;o+=`<rect x="290" y="${yy-14}" width="6" height="46" rx="3" fill="${['#4C84F5','#22A559','#4DA3FF'][i]}"/>`+tx(k.l,310,yy+4,13,440,'fill="#BBD0F0"',.54)+tx(k.v,310,yy+30,26,300,B+'fill="#fff"',.62)+tx(k.x||k.s,750,yy+30,14,230,'fill="#BBD0F0" text-anchor="end"',.58)});
+  y+=196;
+  o+=cardR(40,y,720,290,pl)+`<text x="64" y="${y+38}" font-size="24" font-weight="bold" fill="#fff">Power of Compounding</text>`+legend(64,y+54,pl)+barsSvg(D,76,y+90,650,150,pl,{round:1})+holdNote(D,736,y+276,pl);
+  y+=312;
+  const a=tableCard(D,40,y,350,'Your SIP plan',p.planRows,[],pl),b=tableCard(D,410,y,350,p.sumTitle,p.sumRows,p.sumExtra,pl);o+=a.s+b.s;y+=a.h+22;
+  const inf=inflBlock(D,40,y,720);if(inf.h){o+=inf.s;y+=inf.h+22}
+  const f=fundBlock(D,40,y,720,pl);if(f.h){o+=f.s;y+=f.h+22}
+  const cb=compareBlock(D,40,y,720,pl);if(cb.h){o+=cb.s;y+=cb.h+22}
+  const be=benefitsBlock(D,40,y,720,pl);o+=be.s;y+=be.h+22;
+  const ft=footerBlock(D,40,y,720,pl);o+=ft.s;y+=ft.h+20;
+  return svgWrap(y,'#0F2A55',o);
+};
+
+/* ---------- 4. MAGAZINE (numbered sections, side labels) ---------- */
+LAYOUTS.magazine=D=>{
+  const p=parts(D),pl=PAL(0),tx=D.tx,B=D.B;let o='',y=0,n=0;
+  o+=`<rect width="800" height="14" fill="#1D6BFF"/>`+tx(headTitle(D).co,40,58,14,720,'fill="#1E3A8A" letter-spacing="3"',.64)
+   +`<text x="40" y="118" font-size="52" font-weight="bold" fill="#0B1F4B">Your SIP Journey</text><text x="40" y="170" font-size="52" font-weight="bold" fill="#1D6BFF">${p.title2}</text>`
+   +`<line x1="40" y1="194" x2="760" y2="194" stroke="#0B1F4B" stroke-width="2"/>`+tx(D.line1,40,224,17,720,'fill="#0B1F4B"')+(D.line2?tx(D.line2,40,246,17,720,'fill="#0B1F4B"'):'')+(D.nm?tx(`Prepared for ${D.nm}`,40,272,16,720,B+'fill="#1D6BFF"',.62):'');
+  y=300;
+  const sec=(title,sub,h,content)=>{n++;const num=String(n).padStart(2,'0');
+    o+=`<line x1="40" y1="${y}" x2="760" y2="${y}" stroke="#BFD3F5"/><text x="40" y="${y+62}" font-size="52" font-weight="bold" fill="#CFE6FF">${num}</text>`+tx(title,40,y+92,19,190,B+'fill="#0B1F4B"',.58)+tx(sub,40,y+112,12,190,'fill="#44546A"',.54)+content;y+=h+24};
+  const RX=250,RW=510;
+  // plan
+  {let c='';p.planRows.forEach(([l,v],i)=>{const xx=RX+(i%2)*(RW/2+5),yy=y+18+Math.floor(i/2)*84;c+=`<rect x="${xx}" y="${yy}" width="${RW/2-5}" height="72" rx="12" fill="#E8F0FF" stroke="#BFD3F5"/>`+tx(l,xx+16,yy+26,12,RW/2-36,'fill="#44546A"',.54)+tx(v,xx+16,yy+54,19,RW/2-36,B+'fill="#0B1F4B"',.62)});sec('Your plan','What you set up',186,c)}
+  // growth
+  {const c=cardR(RX,y+18,RW,262,pl,14)+legend(RX+18,y+34,pl)+barsSvg(D,RX+22,y+64,RW-44,150,pl,{round:1})+holdNote(D,RX+RW-18,y+264,pl);sec('Growth','Power of compounding',290,c)}
+  // results
+  {const k=kpiTiles(D,RX,y+18,RW,pl,true);let c=k.s,yy=y+18+k.h+34;c+=tx(p.sumTitle,RX,yy,16,RW,B+'fill="#1E3A8A"',.6);
+   p.sumRows.forEach(([l,v],i)=>{const ry=yy+28+i*30;c+=tx(l,RX,ry,14,RW*.4,'fill="#44546A"',.54)+tx(v,RX+RW,ry,15,RW*.55,B+'fill="#0B1F4B" text-anchor="end"',.62)+`<line x1="${RX}" y1="${ry+10}" x2="${RX+RW}" y2="${ry+10}" stroke="#E1EAF5"/>`});
+   p.sumExtra.forEach(([t,b],i)=>{c+=tx(t,RX,yy+28+3*30+10+i*20,b?14:13,RW,(b?B:'')+`fill="${b?'#22A559':'#44546A'}"`,.62)});
+   sec('Results',`At ${D.yr(D.T)}`,(yy+28+3*30+10+40)-y-18+10,c)}
+  // inflation
+  if(p.infl.length){const inf=inflBlock(D,RX,y+18,RW,true);sec("Real value",'After inflation',inf.h+30,inf.s)}
+  // fund
+  {const f=fundBlock(D,RX,y+18,RW,pl);if(f.h)sec('The fund','Key details',f.h+20,f.s)}
+  o+=`<line x1="40" y1="${y}" x2="760" y2="${y}" stroke="#BFD3F5"/>`;y+=22;
+  const cb=compareBlock(D,40,y,720,pl);if(cb.h){o+=cb.s;y+=cb.h+22}
+  const be=benefitsBlock(D,40,y,720,pl);o+=be.s;y+=be.h+22;
+  const ft=footerBlock(D,40,y,720,pl);o+=ft.s;y+=ft.h+20;
+  return svgWrap(y,'#F4F9FF',o);
+};
+
+let adj='';
+function build(){
+NN=fqv();
+const P=Math.max(1,+$('p').value||0),R=(+$('r').value||0)/100,L=(+$('lo').value||0)/100,H2=(+$('hi').value||0)/100,nm=esc($('nm').value.trim()),an=esc($('an').value.trim()),ap=esc($('ap').value.trim()),hasAdv=!!(an||ap),H=hasAdv?1150:1120,co=esc($('co').value.trim().toUpperCase());
+let S=cl(Math.round(+$('sy').value||1),1,40);
+let T=cl(Math.round(+$('ty').value||S),1,40);
+adj='';
+if(NN){if(T<S){if((retInfo(1,1)||{}).ages){S=T;adj='SIP years cannot go beyond retirement, so it was set to '+S+'.'}else{T=S;adj='Total years cannot be less than SIP years, so it was set to '+S+'.'}}}
+else S=T;
+const INM=isIN(),fxOK=+$('fx').value>0,FX=INM?1:(fxOK?+$('fx').value:1),CUR=INM?'INR':(fxOK?($('currency').value||'USD'):'USD'),isU=CUR==='USD'||INM,isI=CUR==='INR'&&!INM;
+const RS=v=>currencyMeta[CUR].symbol+Math.round(v).toLocaleString(CUR==='INR'?'en-IN':'en-US');
+const fxs=+FX.toFixed(4);
+const r=Math.pow(1+R,1/12)-1;
+const stp=NN?cl(+$('st').value||0,0,50)/100:0,simI=simulate(P,R,S,T,stp);STP=stp;INVARR=simI.inv;
+const vals=simI.val;
+const vT=vals[T-1],inv=simI.inv[T-1],gain=vT-inv;
+const fl=Math.pow(1+L,T),fh=Math.pow(1+H2,T),lo=vT*fl,hi=vT*fh;
+const pc=x=>+(x*100).toFixed(2);
+const infl=Math.max(0,+$('inf').value||0)/100,dfl=Math.pow(1+infl,T),iOK=infl>0,iH=iOK?126:0,vR=vT/dfl,realG=(1+R)/(1+infl)-1;
+const fit=(s,base,avail,f)=>+Math.max(8,Math.min(base,avail/(String(s).length*f))).toFixed(1);
+const tx=(s,x,y,base,avail,extra,f)=>`<text x="${x}" y="${y}" font-size="${fit(s,base,avail,f||.56)}" ${extra||''}>${s}</text>`;
+const pair=(l,r,y)=>{
+  const lf=fit(l,15,190,.54), rf=fit(r,16,250,.62);
+  return `<text x="434" y="${y}" font-size="${lf}" fill="#44546A">${l}</text>
+          <text x="736" y="${y}" font-size="${rf}" font-weight="bold" fill="#0B1F4B" text-anchor="end">${r}</text>`;
+};
+const B='font-weight="bold" ';
+const fm=x=>String(+x.toFixed(4));
+// bars
+const BH=125,sc=BH/vT,slot=672/T,bw=Math.min(70,slot*0.7);
+let bars='',labs='',last=-99;
+const step=T<=8?1:T<=16?2:5;
+for(let i=0;i<T;i++){
+ const y=i+1,cx=64+slot*(i+0.5),x=cx-bw/2,tot=vals[i]*sc,ih=Math.min(invAt(P,S,y)*sc,tot);
+ bars+=`<rect x="${x.toFixed(1)}" y="${(480-ih).toFixed(1)}" width="${bw.toFixed(1)}" height="${ih.toFixed(1)}" fill="#4C84F5"/>`;
+ if(tot-ih>0.1)bars+=`<rect x="${x.toFixed(1)}" y="${(480-tot).toFixed(1)}" width="${bw.toFixed(1)}" height="${(tot-ih).toFixed(1)}" fill="#22A559"/>`;
+ const show=(y%step===0)||(y===T&&(y-last)>=Math.ceil(step/2));
+ if(show){last=y;labs+=`<text x="${cx.toFixed(1)}" y="500">${T<=10?'Yr '+y:y}</text>`}
+}
+const lx=Math.min(64+slot*(T-0.5),725);
+const topLabel=`<text x="${lx.toFixed(1)}" y="${480-BH-10}" font-size="22" font-weight="bold" fill="#0B1F4B" text-anchor="middle">${U(vT)}</text>`;
+let coins='';[[660,3],[708,5],[756,7]].forEach(([x,n])=>{for(let k=0;k<n;k++)coins+=`<use href="#coins" x="${x}" y="${238-8*k}"/>`});
+const line1=NN?`Invest ${BS()}${P.toLocaleString(LB())} ${FQ().e} for ${yr(S)}${T>S?', then let it':'.'}`:`Invest ${BS()}${P.toLocaleString(LB())} one time, then let it`;
+const line2=(NN?(T>S?`grow until year ${T}.`:''):`grow for ${yr(T)}.`)+(nm?'':(T>S||!NN?' ':'')+'Illustrative example.');
+STAT={P,S,T,R,inv,vT,gain,vR,infl,iOK,U,pc,isI,FX,L,H2};
+SUM=[['Total invested ('+BC()+')',U(inv)+' '+BC(),isU?'':'≈ '+RS(inv*FX)+' in '+currencyMeta[CUR].name],['Value at '+yr(T)+' ('+BC()+')',U(vT)+' '+BC(),isU?'':'≈ '+RS(vT*FX)+' in '+currencyMeta[CUR].name],isI?['If USD strengthens '+pc(L)+'-'+pc(H2)+'%/yr',RS(lo*FX)+' - '+RS(hi*FX),'in '+currencyMeta[CUR].name+' (scenario)']:['Total gain ('+BC()+')',U(gain)+' '+BC(),isU?(vT/inv).toFixed(2)+'x amount invested':'≈ '+RS(gain*FX)+' in '+currencyMeta[CUR].name]];
+if(iOK)SUM.push(["In today's money ("+pc(infl)+"% inflation)",U(vR)+' '+BC(),isU?'':'≈ '+RS(vR*FX)+' in '+currencyMeta[CUR].name]);
+{const ri=retInfo(vT,T);if(ri)SUM.push(['Monthly retirement income',U(ri.sel.W)+' '+BC(),ri.wr+'% of fund at '+ri.at])}
+const fnm=esc($('fn').value.trim()),fnU=esc($('fn').value.trim().toUpperCase()),coN=esc($('co').value.trim());
+const fdl=$('fd').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,10).map(s=>{const k=s.indexOf(':');return k>0&&k<s.length-1?[esc(s.slice(0,k).trim()),esc(s.slice(k+1).trim())]:['',esc(s)]});
+let infSvg='';
+if(iOK){
+  const cw=(720-24)/3,cells=[
+    ['Inflation assumed',pc(infl)+'% a year','Cost of living rises every year','#E8F0FF','#BFD3F5','#0B1F4B',''],
+    ["Value in today's money",U(vR)+' '+BC(),isU?'vs '+U(vT)+' '+BC()+' nominal':'≈ '+RS(vR*FX),'#E3F6EA','#B5E0C4','#14803F',isI?'USD +'+pc(L)+'-'+pc(H2)+'%: '+RS(lo*FX/dfl)+'-'+RS(hi*FX/dfl):''],
+    ['Real growth a year',pc(realG)+'%',pc(R)+'% return less '+pc(infl)+'% inflation','#D5F3E0','#8FD3AA','#14803F','']];
+  cells.forEach(([a,b,c,f,st,vc,d],i)=>{const x=40+i*(cw+12);
+    infSvg+=`<rect x="${x}" y="928" width="${cw}" height="104" rx="14" fill="${f}" stroke="${st}"/>`+tx(a,x+20,954,14,cw-40,'fill="#44546A"',.54)+tx(b,x+20,988,24,cw-40,B+'fill="'+vc+'"',.62)+tx(c,x+20,1008,12,cw-40,'fill="#44546A"')+(d?tx(d,x+20,1025,12,cw-40,B+'fill="#14803F"',.6):'')});
+}
+const WA=waInfo(P,S,T),palC=PAL(0),DC={P,S,T,R,pc,U,tx,B,infl,iOK,dfl,BS,LB,an,ap,hasAdv,wa:WA};
+const waAt=hasAdv?1154:1108,waB=waBlock(DC,40,waAt,720,palC);
+const hasFund=!!(fnm||fdl.length),fy=928+iH,tag=fnU||'SMARTER SIP PLANNING';
+let fundSvg='',dy=0;
+if(hasFund){
+  const barY=fy+50,r0=barY+34,rowsN=Math.ceil(fdl.length/2);
+  const fbH=fdl.length?(r0-fy)+(rowsN-1)*50+20+18:(barY-fy)+4+18;
+  fundSvg=`<rect x="40" y="${fy}" width="720" height="${fbH}" rx="18" fill="#fff" stroke="#D6E4F5"/>`
+   +tx(fnm||'Fund details',64,fy+36,22,672,B+'fill="#0B1F4B"',.58)
+   +`<rect x="64" y="${barY}" width="44" height="4" rx="2" fill="#1D6BFF"/>`
+   +fdl.map(([a,b],i)=>{const x=64+(i%2)*346,y=r0+Math.floor(i/2)*50;
+      return a?tx(a,x,y,12,320,'fill="#44546A"',.54)+tx(b,x,y+20,15,320,B+'fill="#0B1F4B"',.6):tx(b,x,y+10,15,320,B+'fill="#0B1F4B"',.6)}).join('');
+  dy=fbH+22;
+}
+dy+=iH;
+const lay=($('lay')&&$('lay').value)||'classic';
+if(lay!=='classic'&&LAYOUTS[lay]){
+ const D={P,S,T,R,L,H2,vals,vT,inv,gain,lo,hi,infl,vR,realG,iOK,dfl,nm,an,ap,co,coN,fnm,fnU,fdl,hasAdv,wa:WA,INM,isU,isI,CUR,FX,fxs,RS,tag,line1,line2,pc,tx,fit,B,U,BC,BS,LB,yr};
+ return recolor(LAYOUTS[lay](D));
+}
+const cmpB=compareBlock(DC,40,928+dy,720,palC);if(cmpB.h)dy+=cmpB.h+22;
+const HH=H+dy+(WA?waAt+waB.h+24-H:0);
+return recolor(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="${HH}" viewBox="0 0 800 ${HH}" font-family="Helvetica, Arial, sans-serif">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFE6FF"/><stop offset="1" stop-color="#F4F9FF"/></linearGradient>
+<linearGradient id="globe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4DA3FF"/><stop offset="1" stop-color="#1D4ED8"/></linearGradient>
+<g id="coins"><ellipse cx="0" cy="0" rx="22" ry="7" fill="#B8860B"/><rect x="-22" y="-8" width="44" height="8" fill="#F4B400"/><ellipse cx="0" cy="-8" rx="22" ry="7" fill="#FFD54A"/></g></defs>
+<rect width="800" height="${HH}" fill="#F4F9FF"/><rect width="800" height="270" fill="url(#sky)"/>
+<g fill="#B7CDE6" opacity="0.7"><rect x="430" y="170" width="22" height="70"/><rect x="458" y="140" width="26" height="100"/><rect x="490" y="180" width="20" height="60"/><rect x="560" y="160" width="24" height="80"/><rect x="690" y="150" width="26" height="90"/><rect x="722" y="185" width="20" height="55"/></g>
+${tx(co?co+' • '+tag:tag,40,52,18,470,'fill="#1E3A8A" letter-spacing="2"',.62)}
+<text x="40" y="112" font-size="50" font-weight="bold" fill="#0B1F4B">Your SIP Journey</text>
+<text x="40" y="168" font-size="50" font-weight="bold" fill="#0B1F4B">with <tspan fill="#1D6BFF">${INM?'Indian Growth':'Global Growth'}</tspan></text>
+${tx(line1,40,206,18,480,'fill="#0B1F4B"')}
+${line2?tx(line2,40,231,18,480,'fill="#0B1F4B"'):''}
+${nm?tx(`Prepared for ${nm}`,40,258,16,480,B+'fill="#1D6BFF"',.62):''}
+<g transform="translate(600,125)"><circle r="72" fill="url(#globe)"/><path d="M-40,-30 q15,-20 35,-8 q10,15 -8,25 q-20,5 -27,-17z" fill="#5BBF6A"/><path d="M10,5 q25,-12 40,8 q5,25 -20,32 q-18,-5 -20,-40z" fill="#5BBF6A"/><path d="M-45,25 q12,-6 18,8 q-4,14 -16,10z" fill="#5BBF6A"/><ellipse cx="-20" cy="-40" rx="26" ry="10" fill="#fff" opacity="0.25"/><path d="M0,-72 L0,-120" stroke="#2E8B3E" stroke-width="5" fill="none"/><path d="M0,-100 q-40,-8 -44,-42 q40,2 44,42z" fill="#43B54F"/><path d="M0,-112 q38,-4 46,-40 q-40,0 -46,40z" fill="#5BCB68"/></g>
+${coins}
+<path d="M470,255 Q560,235 650,185" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M650,185 l-22,3 m22,-3 l-6,20" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/>
+<rect x="40" y="280" width="720" height="262" rx="18" fill="#fff" stroke="#D6E4F5"/>
+<text x="64" y="316" font-size="26" font-weight="bold" fill="#0B1F4B">Power of Compounding</text>
+<rect x="64" y="334" width="14" height="14" rx="3" fill="#4C84F5"/><text x="86" y="346" font-size="14" fill="#0B1F4B">You invest (cumulative)</text>
+<rect x="260" y="334" width="14" height="14" rx="3" fill="#22A559"/><text x="282" y="346" font-size="14" fill="#0B1F4B">Growth</text>
+${bars}${topLabel}
+<line x1="64" y1="480" x2="736" y2="480" stroke="#C9D6E6"/>
+<g font-size="14" fill="#44546A" text-anchor="middle">${labs}</g>
+<text x="736" y="526" font-size="13" fill="#44546A" text-anchor="end">${T>S?`No new deposits after year ${S}; value keeps growing`:`Value at the end of year ${T}`}</text>
+<rect x="40" y="562" width="225" height="104" rx="14" fill="#E8F0FF" stroke="#BFD3F5"/><text x="64" y="588" font-size="15" fill="#44546A">Total invested</text>${tx(`${BS()}${Math.round(inv).toLocaleString(LB())} ${BC()}`,64,620,27,177,B+'fill="#0B1F4B"',.62)}${tx(payTxt(P,S),64,640,13,177,'fill="#44546A"')}${isU?'':tx(`≈ ${RS(inv*FX)}`,64,658,14,177,B+'fill="#1D4ED8"',.62)}
+<rect x="287" y="562" width="225" height="104" rx="14" fill="#E3F6EA" stroke="#B5E0C4"/><text x="311" y="588" font-size="15" fill="#44546A">Value at ${yr(T)}</text>${tx(`${U(vT)} ${BC()}`,311,620,27,177,B+'fill="#14803F"',.62)}${tx(`Gain ${U(gain)} ${BC()}`,311,640,13,177,'fill="#44546A"')}${isU?'':tx(`≈ ${RS(vT*FX)}`,311,658,14,177,B+'fill="#14803F"',.62)}
+<rect x="534" y="562" width="226" height="104" rx="14" fill="#D5F3E0" stroke="#8FD3AA"/>${isI?tx(`If USD strengthens vs INR`,558,588,14,178,'fill="#44546A"',.54)+tx(`${RS(lo*FX)}-${RS(hi*FX)}`,558,620,25,178,B+'fill="#14803F"',.62)+tx(`${pc(L)}-${pc(H2)}% a year`,558,640,13,178,'fill="#44546A"')+tx(`Indicative scenario only`,558,658,14,178,B+'fill="#14803F"',.62):tx(`Total gain`,558,588,15,178,'fill="#44546A"')+tx(`${U(gain)} ${BC()}`,558,620,25,178,B+'fill="#14803F"',.62)+tx(`Growth on your investment`,558,640,13,178,'fill="#44546A"')+(isU?tx(`${(vT/inv).toFixed(2)}x amount invested`,558,658,14,178,B+'fill="#14803F"',.62):tx(`≈ ${RS(gain*FX)}`,558,658,14,178,B+'fill="#14803F"',.62))}
+<rect x="40" y="690" width="350" height="216" rx="18" fill="#fff" stroke="#D6E4F5"/><text x="64" y="726" font-size="22" font-weight="bold" fill="#0B1F4B">Your SIP plan</text>
+<g font-size="15" fill="#44546A"><text x="64" y="764">${FQ().a} investment</text><text x="64" y="800">Investment period</text><text x="64" y="836">Assumed return</text><text x="64" y="872">${isI?'USD strengthening':'Currency'}</text></g>
+${[[764,`${BS()}${P.toLocaleString(LB())} ${BC()}`],[800,T>S?`${S}y SIP + ${T-S}y hold`:yr(S)],[836,`${pc(R)}% (illustrative)`],[872,isI?`${pc(L)}-${pc(H2)}% a year`:isU?BC()+' (no conversion)':`USD to ${CUR}`]].map(([y,v])=>tx(v,366,y,16,175,B+'fill="#0B1F4B" text-anchor="end"',.62)).join('')}
+<g stroke="#E1EAF5"><line x1="64" y1="778" x2="366" y2="778"/><line x1="64" y1="814" x2="366" y2="814"/><line x1="64" y1="850" x2="366" y2="850"/></g>
+<rect x="410" y="690" width="350" height="216" rx="18" fill="#fff" stroke="#D6E4F5"/><text x="434" y="726" font-size="22" font-weight="bold" fill="#0B1F4B">${isI?'Currency scenario':isU?'Investment summary':'In '+currencyMeta[CUR].name}</text>
+${isI?pair(`Year ${T} value (USD)`,`${U(vT)} ${BC()}`,764)+pair(`1 USD =`,`${currencyMeta[CUR].symbol}${fxs}`,800)+pair(`USD strengthens`,`${pc(L)}-${pc(H2)}% a year`,836):isU?pair(`Total invested`,`${U(inv)} ${BC()}`,764)+pair(`Year ${T} value`,`${U(vT)} ${BC()}`,800)+pair(`Total gain`,`${U(gain)} ${BC()}`,836):pair(`Total invested`,`${RS(inv*FX)}`,764)+pair(`Year ${T} value`,`${RS(vT*FX)}`,800)+pair(`Total gain`,`${RS(gain*FX)}`,836)}
+<g stroke="#E1EAF5"><line x1="434" y1="778" x2="736" y2="778"/><line x1="434" y1="814" x2="736" y2="814"/><line x1="434" y1="850" x2="736" y2="850"/></g>
+${isI?tx(`Local equivalent: ${RS(vT*FX)}`,434,876,14,302,B+'fill="#14803F"',.62)+tx(`Scenario value: ${RS(lo*FX)} - ${RS(hi*FX)}`,434,896,13,302,'fill="#44546A"',.62):isU?tx(`Growth multiple: ${(vT/inv).toFixed(2)}x`,434,876,14,302,B+'fill="#14803F"',.62)+tx(`Gain as % of invested: ${Math.round(gain/inv*100)}%`,434,896,13,302,'fill="#44546A"',.62):tx(`1 USD = ${currencyMeta[CUR].symbol}${fxs}`,434,876,14,302,B+'fill="#14803F"',.62)+tx(`Indicative conversion at today's rate.`,434,896,13,302,'fill="#44546A"',.62)}
+${infSvg}${fundSvg}${cmpB.s}<g transform="translate(0,${dy})"><rect x="40" y="928" width="720" height="92" rx="16" fill="#0F2A55"/><g transform="translate(40,0)">
+<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="90" cy="960" r="14"/><ellipse cx="90" cy="960" rx="6" ry="14"/><line x1="76" y1="960" x2="104" y2="960"/><path d="M257,974 H283 M259,972 V966 M266,972 V960 M273,972 V954 M280,972 V948"/><path d="M257,958 L266,950 L272,954 L284,944 M278,944 H284 V950"/><circle cx="450" cy="960" r="14"/><path d="M630,946 l14,5 v10 q0,9 -14,13 q-14,-4 -14,-13 v-10z"/><path d="M623,961 l5,5 l9,-10"/></g>
+<text x="450" y="968" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">$</text>
+<g fill="#fff" text-anchor="middle"><g font-size="15" font-weight="bold"><text x="90" y="996">${INM?'Market exposure':'Global exposure'}</text><text x="270" y="996">Compounding power</text><text x="450" y="996">${INM?'Rupee investing':'Currency effect'}</text><text x="630" y="996">Access your money</text></g><g font-size="12" fill="#BBD0F0"><text x="90" y="1011">${INM?'Across Indian markets':'Across global markets'}</text><text x="270" y="1011">Returns can earn returns</text><text x="450" y="1011">${INM?'No currency conversion':'May add to returns'}</text><text x="630" y="1011">Per scheme terms</text></g></g></g>
+<g fill="#44546A">${[[1046,`Illustrative only. Assumes ${pc(R)}% effective annual return and ${investPhrase(S)}.`],[1062,!isI?`Excludes taxes and fees.`:`Currency scenario assumes USD strengthens ${pc(L)}-${pc(H2)}% a year against ${currencyMeta[CUR].name}. Excludes taxes.`],[1078,`Past performance does not guarantee future returns. Actual returns may be lower or higher and capital may be lost.`],[1094,isU?`Investment is made in ${BC()}.`:`Investment is made in USD. ${currencyMeta[CUR].name} values use 1 USD = ${currencyMeta[CUR].symbol}${fxs} and are indicative.`]].map(([y,t])=>tx(t,40,y,12,720,'',.52)).join('')}</g>
+${hasAdv?`<rect x="40" y="1106" width="720" height="38" rx="10" fill="#E8F0FF" stroke="#BFD3F5"/>${an?tx(`Prepared by ${an}`,58,1130,15,430,B+'fill="#0B1F4B"',.62):''}${ap?tx(ap,742,1130,15,260,B+'fill="#1D4ED8" text-anchor="end"',.62):''}`:''}${waB.s}
+</g></svg>`)}
+let cur='',T0=null;
+let msgT,rT,sT,busy=false;
+const RM=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
+const msg=t=>{const m=$('msg');clearTimeout(msgT);m.textContent=t||'';m.classList.toggle('on',!!t);if(t&&!/…$/.test(t))msgT=setTimeout(()=>m.classList.remove('on'),/fail|blocked|cannot/i.test(t)?7000:3500)};
+const hint=t=>{$('hint').textContent=t||''};
+let fixNote='';
+function inputIssues(){
+  const m=[],n=id=>{const v=$(id).value.trim();return v===''?NaN:+v};
+  const r=n('r'),p=n('p'),inf=n('inf'),fx=n('fx'),cur=$('currency').value;
+  if(!(r>=0&&r<=40))m.push('Annual return must be between 0% and 40%.');
+  if(!(p>=1))m.push('Investment amount must be at least 1.');
+  if($('inf').value.trim()!==''&&!(inf>=0&&inf<=30))m.push('Inflation must be between 0% and 30%.');
+  if(!isIN()&&cur!=='USD'&&!(fx>0))m.push('Enter a valid '+cur+' rate. Showing USD until then.');
+  return m.join(' ');
+}
+function schedule(){clearTimeout(rT);rT=setTimeout(render,60);clearTimeout(sT);sT=setTimeout(save,300)}
+const locked=fn=>async(...a)=>{if(busy)return;busy=true;document.body.classList.add('busy');try{return await fn(...a)}finally{busy=false;document.body.classList.remove('busy')}};
+const setH=(el,h)=>{if(el._h===h)return false;el.innerHTML=h;el._h=h;return true};
+function save(){try{const o={};IDS.forEach(i=>o[i]=$(i).value);localStorage.setItem('sipmaker',JSON.stringify(o))}catch(e){}}
+function load(){try{const o=JSON.parse(localStorage.getItem('sipmaker')||'null');if(o)IDS.forEach(i=>{if(typeof o[i]==='string')$(i).value=o[i]});if(!LAYOUTS[$('lay').value]&&$('lay').value!=='classic')$('lay').value='classic'}catch(e){}}
+let SUM=[],shown=true;
+function adapt(){
+  const IN=isIN(),f=fqv(),cur=$('currency').value,gl=$('gl').value,cmpOff=$('cmq').value==='0';
+  /* hide what the first choices make irrelevant */
+  $('gCur').hidden=IN;
+  $('gaW').hidden=!gl;
+  $('fdrW').hidden=cmpOff;$('svrW').hidden=cmpOff;
+  /* one-line summary under each section title */
+  const P=+$('p').value||0,R=parseFloat($('r').value)||0,sy=+$('sy').value||0,T=+$('ty').value||0;
+  const set=(id,t)=>{const e=$(id);if(e.textContent!==t)e.textContent=t};
+  set('sInv',(f?FQN[f].a:'Lump sum')+' '+BS()+P.toLocaleString(LB())+' • '+(+R.toFixed(2))+'% • '+(f?(sy+(T>sy?' + '+(T-sy):'')+' yrs'):(T+' yrs')));
+  set('sCmp',cmpOff?'Hidden':'FD '+(+$('fdr').value||0)+'% • Savings '+(+$('svr').value||0)+'%');
+  set('sAdv',([$('an').value.trim(),$('ap').value.trim()].filter(Boolean).join(' • ')||'Advisor name, phone and QR')+($('wq').value==='0'?' • QR off':''));
+  set('sCli',[$('nm').value.trim(),$('ag').value?'age '+$('ag').value:'',$('tg').value?'target '+$('tg').value:'',gl?(gl==='Custom'&&$('gn').value.trim()?$('gn').value.trim():gl):''].filter(Boolean).join(' • ')||'Name, age, goal, retirement');
+  set('sCur',cur==='USD'?'USD, no conversion':'USD → '+cur+' @ '+(+(+$('fx').value||0).toFixed(2)));
+  set('sBrand',($('co').value.trim()||'Company')+' • '+$('theme').selectedOptions[0].text);
+}
+function render(){
+  cur=build();
+  $('gnW').hidden=$('gl').value!=='Custom';['rtW','rtX'].forEach(i=>$(i).hidden=$('gl').value!=='Retirement');
+  {const rt=$('gl').value==='Retirement';$('raW').hidden=!rt;$('tgW').hidden=rt}
+  document.documentElement.style.setProperty('--ac',curTheme().ac);
+  const IN=isIN(),u=$('currency').value==='USD'||IN;['fxW','rateStatus','rfW'].forEach(i=>$(i).hidden=u);['loW','hiW'].forEach(i=>$(i).hidden=$('currency').value!=='INR'||IN);{const el=$('currency').value==='INR'&&!IN;['cmpS','cmpW'].forEach(i=>$(i).hidden=!el)}$('mktW').hidden=false;{const f=fqv();$('pl').textContent=(f?FQN[f].a+' SIP':'Lump sum amount')+(IN?' (₹)':' ($)');$('syW').hidden=!f;$('syl').textContent='SIP years (pay '+(f?FQN[f].a.toLowerCase():'')+')';$('tyl').textContent=f?'Total years (SIP + hold)':'Years to stay invested'}$('gal').textContent=IN?'Target amount (₹ INR)':'Target amount ($ USD)';
+  if(shown){
+    setH($('sum'),SUM.map(x=>'<div><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+x[2]+'</span></div>').join(''));
+    cmUpdate();
+    if(mode==='plan'){
+      let pg;try{pg=buildPlan()}catch(e){console.error(e);pg=[]}
+      setH($('out'),pg.map(x=>'<div class="pg">'+x+'</div>').join(''));
+    }else setH($('out'),innerWidth<700?cur.replace(/viewBox="0 0 800 (\d+)"/,'viewBox="16 0 768 $1"'):cur);
+    $('layBtns').hidden=mode==='plan';
+    if(setH($('layBtns'),LAYS.map(([k,n])=>'<button type="button" data-l="'+k+'" aria-pressed="'+($('lay').value===k)+'"'+($('lay').value===k?'':' class="o"')+'>'+n+'</button>').join(''))){
+      const a=$('layBtns').querySelector('button:not(.o)');if(a)$('layBtns').scrollLeft=a.offsetLeft-($('layBtns').clientWidth-a.offsetWidth)/2;
+    }
+    $('btns').hidden=mode==='plan';$('pbtns').hidden=mode!=='plan';
+    $('mi').className=mode==='plan'?'o':'';$('mp').className=mode==='plan'?'':'o';$('mi').setAttribute('aria-pressed',mode!=='plan');$('mp').setAttribute('aria-pressed',mode==='plan');
+  }
+  const _iss=inputIssues();
+  if(_iss)hint(_iss);
+  else if(!adj&&$('gl').value==='Retirement'&&!retInfo(1,1).ages){const _t=parseInt($('ra').value,10);hint(_t>=99?'Retirement age must be below 99 (the plan runs till age 99).':'Enter customer age and retirement age: growth runs till retirement, then income is paid till age 99.')}
+  else hint(adj||fixNote);
+  adapt();
+}
+$('mkt').addEventListener('input',()=>{if($('mkt').value==='IN'){$('currency').value='INR';$('fx').value='1'}});
+$('currency').addEventListener('input',()=>{const c=$('currency').value;if(c==='USD'||(isIN()&&c!=='INR'))$('mkt').value='GL'});
+IDS.forEach(i=>$(i).addEventListener('input',schedule));
+IDS.forEach(i=>$(i).addEventListener('input',()=>{fixNote=''}));
+$('r').addEventListener('change',()=>{const v=$('r').value.trim(),o=v;if(v===''||isNaN(+v)){$('r').value=18}else $('r').value=Math.min(40,Math.max(0,+v));if(String($('r').value)!==o)fixNote='Return changed to '+$('r').value+'% (allowed range is 0% to 40%).';schedule()});
+$('p').addEventListener('change',()=>{const v=+$('p').value;if(!(v>=1)){$('p').value=1;fixNote='Investment amount changed to 1 (minimum).'}schedule()});
+$('layBtns').addEventListener('click',e=>{const b=e.target.closest('button[data-l]');if(!b)return;$('lay').value=b.dataset.l;save();render()});
+$('out').addEventListener('click',e=>{if(innerWidth>=900)return;const sv=(e.target.closest&&e.target.closest('svg'))||$('out').querySelector('svg');if(!sv)return;$('zi').innerHTML=sv.outerHTML;$('zm').hidden=false;$('zm').scrollTop=0;$('zm').scrollLeft=0;$('zx').focus()});
+$('zx').onclick=()=>{$('zm').hidden=true};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('zm').hidden=true});
+function showRes(){shown=true;render()}
+$('bg').onclick=()=>{showRes();msg('');if(innerWidth<900)$('res').scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'})};
+$('ed').onclick=()=>window.scrollTo({top:0,behavior:RM()?'auto':'smooth'});
+IDS.filter(i=>i!=='fd').forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key==='Enter')showRes()}));
+function resetAll(){
+  IDS.forEach(i=>$(i).value=DEF[i]);
+  $('theme').value='blue';
+  try{localStorage.removeItem('sipmaker_custom')}catch(e){}
+  mode='info';adj='';shown=true;
+  $('rateStatus').textContent='Live rate: ready to fetch';
+  render();save();msg('Reset to defaults.');
+}
+$('br').onclick=resetAll;
+function fname(ext){const n=($('nm').value.trim()||'customer').replace(/[^\w\-]+/g,'_');return `SIP_${n}_${$('p').value||0}_${$('ty').value||0}yr.${ext}`}
+async function cvs(){
+  if(!cur) cur=build();
+  // Use a Blob URL rather than a data: URL. This is more reliable in Android Chrome
+  // when this HTML page was opened from the Downloads/content:// viewer.
+  const svgBlob=new Blob([cur],{type:'image/svg+xml;charset=utf-8'});
+  const svgUrl=URL.createObjectURL(svgBlob);
+  const img=new Image();
+  try{
+    await new Promise((resolve,reject)=>{
+      img.onload=resolve;
+      img.onerror=()=>reject(new Error('The infographic could not be rendered by this browser'));
+      img.src=svgUrl;
+    });
+    const c=document.createElement('canvas');const hm=cur.match(/viewBox="0 0 800 (\d+)"/);c.width=1600;c.height=2*(hm?+hm[1]:1120);
+    const g=c.getContext('2d');if(!g) throw new Error('Canvas unavailable');
+    g.fillStyle=curTheme().bg;g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+    return c;
+  }finally{
+    URL.revokeObjectURL(svgUrl);
+  }
+}
+function canvasBlob(c,type,quality){
+  return new Promise((resolve,reject)=>{
+    c.toBlob(b=>b?resolve(b):reject(new Error('Browser could not create the image file')),type,quality);
+  });
+}
+async function saveBlob(blob,name){
+  let d=null;
+  try{d=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){d=null}
+  if(d){
+    try{await d.save({filename:name,data:blob});return true}
+    catch(e){if(e&&e.code==='declined')return false;throw e}
+  }
+  const u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download=name;a.rel='noopener';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),10000);
+  return true;
+}
+async function dl(ext){
+  try{
+    if(!shown) showRes();
+    msg('Creating image…');
+    cur=build();
+    const c=await cvs(),blob=await canvasBlob(c,'image/jpeg',0.94);
+    const ok=await saveBlob(blob,fname('jpg'));
+    msg(ok===false?'Download cancelled.':'Image generated and saved.');
+  }catch(e){
+    console.error(e);
+    msg('Image generation failed: '+(e.message||'unknown browser error'));
+  }
+}
+async function share(){
+  try{
+    msg('Creating image…');
+    cur=build();
+    const c=await cvs(),blob=await canvasBlob(c,'image/jpeg',0.94),f=new File([blob],fname('jpg'),{type:'image/jpeg'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){if(await nshare({files:[f],title:'My SIP plan'},blob,fname('jpg')))msg('Shared.')}
+    else{const ok=await saveBlob(blob,fname('jpg'));msg(ok===false?'Download cancelled.':'Sharing is not supported in this browser, so the image was downloaded instead.')}
+  }catch(e){
+    if(e&&e.name==='AbortError')return;
+    console.error(e);msg('Share failed: '+(e.message||'unknown error'));
+  }
+}
+async function nshare(d,blob,name){try{await navigator.share(d);return true}catch(e){if(e&&e.name==='NotAllowedError'){const ok=await saveBlob(blob,name);msg(ok===false?'Download cancelled.':'Safari blocked sharing, so the file was downloaded instead.');return false}throw e}}
+function copyFallback(t){
+  const ta=document.createElement('textarea');
+  ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';
+  document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,t.length);
+  let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+  ta.remove();return ok;
+}
+async function copyTxt(){
+  render();
+  const n=$('nm').value.trim(),P=Math.max(1,+$('p').value||0),S=Math.round(+$('sy').value||1);
+  const t=(n?'SIP plan for '+n:'SIP plan')+($('fn').value.trim()?' — '+$('fn').value.trim():'')+'\nInvest '+BS()+P.toLocaleString(LB())+(NN?' '+FQ().e+' for '+yr(S):' one time, held for '+yr(S))+'\n'+SUM.map(x=>x[0]+': '+x[1]+(x[2]?' ('+x[2]+')':'')).join('\n')+'\nIllustrative only. Returns are not guaranteed.';
+  let ok=copyFallback(t);
+  if(!ok){try{await navigator.clipboard.writeText(t);ok=true}catch(e){}}
+  if(ok){msg('Summary copied.');return}
+  try{if(navigator.share){await navigator.share({text:t});msg('Summary shared.');return}}catch(e){if(e&&e.name==='AbortError')return}
+  msg('Copy is blocked in this browser. Use Share instead.');
+}
+$('bt').onclick=locked(copyTxt);
+$('bsh').onclick=locked(share);
+$('bp').onclick=locked(()=>dl('jpg'));
+
+/* ===== Personal Investment Plan: 3-page PDF ===== */
+let mode='info';
+function simulate(P,R,S,T,step){
+  const r=Math.pow(1+R,1/12)-1,inv=[],val=[],ann=[];let bal=0,tot=0;
+  for(let y=1;y<=T;y++){
+    const amt=NN?P*Math.pow(1+step,y-1):P,kk=NN?12/NN:0;let yrAmt=0;
+    for(let m=0;m<12;m++){const pay=(NN?(y<=S&&m%kk===0):(y===1&&m===0))?amt:0;bal=(bal+pay)*(1+r);tot+=pay;yrAmt+=pay}
+    ann.push(yrAmt);inv.push(tot);val.push(bal);
+  }
+  return{inv,val,ann};
+}
+const pfit=(s,base,avail,f)=>+Math.max(7,Math.min(base,avail/(String(s).length*f))).toFixed(1);
+const ptx=(s,x,y,base,avail,extra,f)=>`<text x="${x}" y="${y}" font-size="${pfit(s,base,avail,f||.56)}" ${extra||''}>${s}</text>`;
+const wrapTxt=(t,n)=>{const w=t.split(' '),o=[];let c='';w.forEach(x=>{if((c+' '+x).trim().length>n){o.push(c);c=x}else c=(c+' '+x).trim()});if(c)o.push(c);return o};
+function retInfo(F,T){
+  if($('gl').value!=='Retirement')return null;
+  const ca=parseInt($('ag').value,10),tg=parseInt($('ra').value,10),ages=ca>0&&tg>ca&&tg<99,ra=ages?tg:0;
+  const pr=(+$('r').value||0)/100,wr=cl(+$('wr').value||6,1,12),N=ages?99-ra:30,r=Math.pow(1+pr,1/12)-1;
+  const sim=rate=>{let b=F;const arr=[F],inc=[0];let W=F*rate/100/12;for(let n=1;n<=N;n++){const A=b*rate/100,w=A/12;if(n===1)W=w;inc.push(A);for(let m=0;m<12;m++)b=(b-w)*(1+r);arr.push(b)}return{W,arr,inc,dead:null}};
+  const rows=[];for(let k=1;k<=12;k++)rows.push({k,...sim(k)});
+  let best=0;rows.forEach(x=>{if(x.dead===null)best=x.k});
+  return{ages,ca,ra,wr,pr,F,N,yrs:ages?ra-ca:T,at:ages?'age '+ra:'retirement',end:ages?'age 99':'year 30',lab:n=>ages?'Age '+(ra+n):'Year '+n,sel:sim(wr),sim,rows,best};
+}
+function buildPlan(){
+  NN=fqv();
+  const P=Math.max(1,+$('p').value||0),R=(+$('r').value||0)/100;
+  let S=cl(Math.round(+$('sy').value||1),1,40);
+  let T=cl(Math.round(+$('ty').value||S),1,40);if(NN){if(T<S){if((retInfo(1,1)||{}).ages)S=T;else T=S}}else S=T;
+  const stp=NN?cl(+$('st').value||0,0,50)/100:0;
+  const INM=isIN(),fxOK=+$('fx').value>0,FX=INM?1:(fxOK?+$('fx').value:1),CUR=INM?'INR':(fxOK?($('currency').value||'USD'):'USD'),isU=CUR==='USD'||INM,isI=CUR==='INR'&&!INM,meta=currencyMeta[CUR];
+  const fxs=+FX.toFixed(4),loc=isI?'en-IN':'en-US';
+  const ag=parseInt($('ag').value,10),hasAge=ag>0&&ag<100;
+  const nm=esc($('nm').value.trim()),an=esc($('an').value.trim()),ap=esc($('ap').value.trim()),co=esc($('co').value.trim().toUpperCase());
+  const pc=x=>+(x*100).toFixed(2);
+  const US=v=>BS()+Math.round(v).toLocaleString(LB());
+  const LC=v=>meta.symbol+Math.round(v*FX).toLocaleString(loc);
+  const USs=v=>INM?'₹'+KI(v):'$'+K(v);
+  const LCs=v=>{v=v*FX;return isI?'₹'+(v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(2)+' L':Math.round(v).toLocaleString('en-IN')):meta.symbol+K(v)};
+  const sim=simulate(P,R,S,T,stp),vT=sim.val[T-1],invT=sim.inv[T-1],gain=vT-invT;
+  const B='font-weight="bold" ',G='#14803F',hasAdv=!!(an||ap);
+  const ga=Math.max(0,+$('ga').value||0),glv=$('gl').value,gname=(glv||ga>0)?esc(glv==='Custom'?($('gn').value.trim()||'Custom goal'):(glv||'Financial goal')):'';
+  const fnm=esc($('fn').value.trim());
+  const fdl=$('fd').value.split('\n').map(t=>t.trim()).filter(Boolean).slice(0,10).map(t=>{const k=t.indexOf(':');return k>0&&k<t.length-1?[esc(t.slice(0,k).trim()),esc(t.slice(k+1).trim())]:['',esc(t)]});
+  const RI=retInfo(vT,T),NP=((fdl.length||isI)?4:3)+(cmpOn()?1:0)+(isI&&$('cmp').value!=='0'?1:0)+(RI?1:0);
+  const showSU=NN>0&&(stp>0||$('su').value==='show');
+  const date=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const card=(x,y,w,h,fill,stroke)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="${fill||'#fff'}" stroke="${stroke||'#D6E4F5'}"/>`;
+  const wrap=body=>recolor(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1131" viewBox="0 0 800 1131" font-family="Helvetica, Arial, sans-serif"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFE6FF"/><stop offset="1" stop-color="#F4F9FF"/></linearGradient></defs>${body}</svg>`);
+  const WAp=waInfo(P,S,T),hx=WAp?632:760;
+  PLAN_LINK=WAp?{url:WAp.url,x:652,y:22,w:108,h:108}:null;
+  const head=(sub,pg)=>`<rect width="800" height="1131" fill="#F4F9FF"/><rect width="800" height="150" fill="url(#sky)"/>`
+    +(co?ptx(co,40,50,15,430,'fill="#1E3A8A" letter-spacing="2" font-weight="bold"',.66):'')
+    +ptx(`Page ${pg} of ${NP}`,pg===1?hx:760,44,12,150,'fill="#44546A" text-anchor="end"',.56)
+    +(pg===1?ptx(`Prepared on ${date}`,hx,64,12,220,'fill="#44546A" text-anchor="end"',.56):'')
+    +ptx('PERSONAL INVESTMENT PLAN',40,102,34,pg===1&&WAp?590:720,B+'fill="#0B1F4B" letter-spacing="1"',.7)
+    +ptx(sub,40,132,17,pg===1&&WAp?590:720,B+'fill="#1D6BFF"',.6)
+    +(pg===1&&WAp?qrSvg(WAp.m,652,22,108)+'<text x="706" y="145" font-size="11" font-weight="bold" fill="#1E3A8A" text-anchor="middle">Chat on WhatsApp</text>':'');
+  const foot=()=>`<line x1="40" y1="1090" x2="760" y2="1090" stroke="#D6E4F5"/>`
+    +ptx('Illustrative projection only. Returns are not guaranteed.',40,1110,11,430,'fill="#44546A"',.52)
+    +ptx(hasAdv?'Prepared by '+[an,ap].filter(Boolean).join(' • '):co,760,1110,12,320,B+'fill="#1D4ED8" text-anchor="end"',.6);
+
+  /* ---------- PAGE 1 ---------- */
+  const rows=[];
+  if(nm)rows.push(['Customer',nm]);
+  if(hasAge){rows.push(['Current age',ag+' years']);rows.push([RI?'Retirement age':'Target age',(ag+T)+' years'])}
+  rows.push([FQ().a+' investment',US(P)+' '+BC()]);
+  rows.push(NN?['Investment period',yr(S)]:['Holding period',yr(T)]);
+  if(T>S)rows.push(['Growth period',yr(T-S)]);
+  rows.push(['Assumed return',pc(R)+'% p.a.']);
+  if(stp>0)rows.push(['Annual step-up',pc(stp)+'%']);
+  if(gname)rows.push(['Goal',gname+(ga>0?' · '+USs(ga):'')]);
+  const cy=165,cH=Math.max(300,60+rows.length*34),infP=Math.max(0,+$('inf').value||0)/100;
+  let p1=head('Your financial plan'+(fnm?' — '+fnm:''),1);
+  p1+=card(40,cy,350,cH)+ptx('Customer profile',64,cy+36,20,300,B+'fill="#0B1F4B"',.58);
+  rows.forEach(([a,b],i)=>{const y=cy+72+i*34;p1+=ptx(a,64,y,13,150,'fill="#44546A"',.54)+ptx(b,366,y,15,190,B+'fill="#0B1F4B" text-anchor="end"',.6)+(i<rows.length-1?`<line x1="64" y1="${y+12}" x2="366" y2="${y+12}" stroke="#E1EAF5"/>`:'')});
+  p1+=card(410,cy,350,cH,'#E8F0FF','#BFD3F5')
+    +ptx(hasAge?`Estimated value at age ${ag+T}`:`Estimated value after ${yr(T)}`,434,cy+38,14,300,'fill="#44546A"',.54)
+    +ptx(US(vT)+' '+BC(),434,cy+98,40,300,B+'fill="'+G+'"',.62)
+    +(isU?'':ptx('≈ '+LC(vT),434,cy+130,20,300,B+'fill="#1D4ED8"',.62))
+    +(infP>0?ptx(US(vT/Math.pow(1+infP,T))+' '+BC()+' in today\'s money ('+pc(infP)+'% inflation)',434,cy+158,13,300,'fill="#44546A"',.54):'')
+    +`<line x1="434" y1="${cy+cH-122}" x2="736" y2="${cy+cH-122}" stroke="#BFD3F5"/>`;
+  [['Total invested',US(invT)+' '+BC()],['Estimated growth',US(gain)+' '+BC()],['Growth multiple',(vT/invT).toFixed(2)+'x invested']].forEach(([a,b],i)=>{
+    const y=cy+cH-92+i*36;p1+=ptx(a,434,y,13,140,'fill="#44546A"',.54)+ptx(b,736,y,16,170,B+'fill="'+(i?G:'#0B1F4B')+'" text-anchor="end"',.62)});
+  const chY=cy+cH+22,nutH=36+((T>S?4:3)+(RI&&RI.ages?1:0))*24+12,fundStrip=fdl.length>0,stripH=92,
+    chH=Math.max(250,Math.min(rows.length>=9?350:392,1076-chY-20-nutH-(fundStrip?stripH+14:0))),base=chY+chH-72,BH=chH-150;
+  p1+=card(40,chY,720,chH)+ptx('Your wealth journey'+(hasAge?' by age':' by year'),64,chY+36,22,500,B+'fill="#0B1F4B"',.58)
+    +`<rect x="64" y="${chY+52}" width="14" height="14" rx="3" fill="#4C84F5"/>`+ptx('You invest (cumulative)',86,chY+64,13,170,'fill="#0B1F4B"',.55)
+    +`<rect x="270" y="${chY+52}" width="14" height="14" rx="3" fill="#22A559"/>`+ptx('Growth',292,chY+64,13,100,'fill="#0B1F4B"',.55)
+    +((RI&&RI.ages)?`<rect x="380" y="${chY+52}" width="14" height="14" rx="3" fill="#F59E0B"/>`+ptx('Fund during retirement',402,chY+64,13,200,'fill="#0B1F4B"',.55):'');
+  const ext=!!(RI&&RI.ages&&RI.N>0),Tt=ext?T+RI.N:T,pk=ext?Math.max(vT,...RI.sel.arr):vT;
+  const sc=BH/pk,slot=672/Tt,bw=Math.min(40,slot*.72),lstep=Tt<=10?1:Tt<=20?2:5;
+  const agLab=a=>ext&&(a===RI.ra||a===99||(a%10===0&&Math.abs(a-RI.ra)>3&&a<99));
+  let bars='',labs='',last=-99;
+  for(let i=0;i<T;i++){
+    const y=i+1,cx=64+slot*(i+.5),tot=sim.val[i]*sc,ih=Math.min(sim.inv[i]*sc,tot);
+    bars+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${(base-ih).toFixed(1)}" width="${bw.toFixed(1)}" height="${ih.toFixed(1)}" fill="#4C84F5"/>`;
+    if(tot-ih>.1)bars+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${(base-tot).toFixed(1)}" width="${bw.toFixed(1)}" height="${(tot-ih).toFixed(1)}" fill="#22A559"/>`;
+    if(ext?agLab(ag+y):((y%lstep===0)||(y===T&&(y-last)>=Math.ceil(lstep/2)))){last=y;labs+=`<text x="${cx.toFixed(1)}" y="${base+20}">${hasAge?ag+y:y}</text>`}
+  }
+  if(ext)for(let n=1;n<=RI.N;n++){
+    const cx=64+slot*(T+n-.5),h=RI.sel.arr[n]*sc;
+    if(h>.3)bars+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${(base-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="#F59E0B"/>`;
+    if(agLab(RI.ra+n))labs+=`<text x="${cx.toFixed(1)}" y="${base+20}">${RI.ra+n}</text>`;
+  }
+  const lx=Math.min(64+slot*(T-.5),718);
+  p1+=bars+`<line x1="64" y1="${base}" x2="736" y2="${base}" stroke="#C9D6E6"/><g font-size="13" fill="#44546A" text-anchor="middle">${labs}</g>`
+    +ptx(hasAge?'Age':'Year',400,base+44,12,100,'fill="#44546A" text-anchor="middle"',.56)
+    +(ext?'':`<text x="${lx.toFixed(1)}" y="${(base-BH-10).toFixed(1)}" font-size="18" font-weight="bold" fill="${G}" text-anchor="middle">${USs(vT)}</text>`);
+  if(ext){const rx=64+slot*T;p1+=`<line x1="${rx.toFixed(1)}" y1="${base-BH-8}" x2="${rx.toFixed(1)}" y2="${base}" stroke="#D97706" stroke-dasharray="4 4"/><text x="${rx.toFixed(1)}" y="${base-BH-3}" font-size="12" font-weight="bold" fill="#B45309" text-anchor="${rx>480?'end':'start'}">Retire at ${RI.ra}: ${USs(vT)}</text>`}
+  if(T>S){const mx=64+slot*S;p1+=`<line x1="${mx.toFixed(1)}" y1="${base-BH-8}" x2="${mx.toFixed(1)}" y2="${base}" stroke="#B7CDE6" stroke-dasharray="4 4"/><text x="${mx.toFixed(1)}" y="${ext?base-BH-3:base-BH-30}" font-size="11" fill="#44546A" text-anchor="${ext?'end':(mx>600?'end':'middle')}">${ext?'SIP ends':'Deposits stop here'}</text>`}
+  const sY=chY+chH+20,story=[];
+  story.push(hasAge?`I'm ${ag}.`:'My plan:');
+  story.push((NN?`I invest ${US(P)} ${FQ().p} for ${yr(S)}`:`I invest ${US(P)} one time as a lump sum`)+`${stp>0?`, increasing it ${pc(stp)}% each year`:''}.`);
+  if(T>S)story.push(hasAge?`Then I leave it invested until I'm ${ag+T}.`:`Then I leave it invested for ${yr(T-S)} more.`);
+  story.push(`Illustrative value: ${US(vT)}${isU?'':' (≈ '+LC(vT)+')'}.`);
+  if(RI&&RI.ages)story.push(`From ${RI.ra} I take ${US(RI.sel.W)} a month, planned till age 99.`);
+  p1+=card(40,sY,720,36+story.length*24+12,'#E8F0FF','#BFD3F5')+ptx('Your plan in a nutshell',64,sY+28,14,300,B+'fill="#1D4ED8"',.6);
+  story.forEach((t,i)=>{p1+=ptx(t,64,sY+54+i*24,16,672,'fill="#0B1F4B"',.55)});
+  if(fundStrip){
+    const fy=sY+nutH+14,top=fdl.slice(0,4),cw=Math.floor(672/top.length);
+    p1+=card(40,fy,720,stripH,'#E8F0FF','#BFD3F5')
+      +ptx(fnm||'Fund snapshot',64,fy+30,16,fnm?480:300,B+'fill="#1D4ED8"',.6)
+      +(fnm?ptx('FUND SNAPSHOT',736,fy+30,10,160,'fill="#44546A" letter-spacing="1" text-anchor="end"',.62):'');
+    top.forEach(([a,b],i)=>{const x=64+i*cw;
+      p1+=a?ptx(a,x,fy+56,11,cw-14,'fill="#44546A"',.55)+ptx(b,x,fy+76,15,cw-14,B+'fill="#0B1F4B"',.6):ptx(b,x,fy+68,14,cw-14,B+'fill="#0B1F4B"',.6)});
+  }
+  p1+=foot();
+
+  /* ---------- PAGE 2 ---------- */
+  let p2=head('Your wealth journey'+(fnm?' — '+fnm:''),2);
+  const ms=[...new Set([.25,.5,.75,1].map(f=>Math.max(1,Math.round(T*f))))];
+  const tlY=170,tlH=124,lx0=96,lx1=704,pxOf=yv=>lx0+(lx1-lx0)*yv/T,lineY=tlY+76,sx=pxOf(S);
+  p2+=card(40,tlY,720,tlH)+ptx('Your journey at a glance',64,tlY+28,17,300,B+'fill="#0B1F4B"',.58)+ptx('Blue: you invest · Green: your money keeps growing',736,tlY+28,11,340,'fill="#44546A" text-anchor="end"',.52)
+    +`<line x1="${lx0}" y1="${lineY}" x2="${sx.toFixed(1)}" y2="${lineY}" stroke="#4C84F5" stroke-width="5" stroke-linecap="round"/>`
+    +(T>S?`<line x1="${sx.toFixed(1)}" y1="${lineY}" x2="${lx1}" y2="${lineY}" stroke="#22A559" stroke-width="5" stroke-linecap="round"/>`:'');
+  p2+=`<circle cx="${lx0}" cy="${lineY}" r="7" fill="#fff" stroke="#4C84F5" stroke-width="3"/>`+ptx(hasAge?`Age ${ag}`:'Year 0',lx0,lineY-16,13,110,'fill="#44546A" text-anchor="middle"',.55)+ptx('Start',lx0,lineY+28,18,110,B+'fill="#1D4ED8" text-anchor="middle"',.62)+ptx(`${US(P)} ${FQ().p}`,lx0,lineY+44,11,110,'fill="#44546A" text-anchor="middle"',.52);
+  ms.forEach((yv,i)=>{
+    const x=pxOf(yv),v=sim.val[yv-1],isL=i===ms.length-1,col=isL?'#22A559':(yv<=S?'#4C84F5':'#22A559');
+    p2+=`<circle cx="${x.toFixed(1)}" cy="${lineY}" r="${isL?9:7}" fill="${isL?'#22A559':'#fff'}" stroke="${col}" stroke-width="3"/>`
+      +ptx(hasAge?`Age ${ag+yv}`:`Year ${yv}`,x.toFixed(1),lineY-16,13,110,'fill="#44546A" text-anchor="middle"',.55)
+      +ptx(USs(v),x.toFixed(1),lineY+28,20,120,B+'fill="'+(isL?G:'#0B1F4B')+'" text-anchor="middle"',.62)
+      +ptx(isU?`Invested ${USs(sim.inv[yv-1])}`:'≈ '+LCs(v),x.toFixed(1),lineY+44,11,120,'fill="#44546A" text-anchor="middle"',.52);
+  });
+  const ty0=308;
+  const cols=isU?{ann:380,tot:560,val:736}:{ann:330,tot:470,val:600,loc:736};
+  const ry0=ty0+72,rowH=Math.min(30,(1072-ry0-14)/T),fs=Math.max(9,Math.min(14,rowH*.52));
+  const tabH=72+T*rowH+14;
+  p2+=card(40,ty0,720,tabH)+ptx('Year-by-year projection',64,ty0+34,20,380,B+'fill="#0B1F4B"',.58)
+    +ptx('Values shown at the end of each year',736,ty0+34,12,260,'fill="#44546A" text-anchor="end"',.54);
+  const hy=ty0+60,hf='font-size="12" font-weight="bold" fill="#1D4ED8"';
+  p2+=(hasAge?`<text x="64" y="${hy}" ${hf}>At age</text><text x="140" y="${hy}" ${hf}>Year</text>`:`<text x="64" y="${hy}" ${hf}>Year</text>`)
+    +`<text x="${cols.ann}" y="${hy}" ${hf} text-anchor="end">Annual investment</text><text x="${cols.tot}" y="${hy}" ${hf} text-anchor="end">Total invested</text><text x="${cols.val}" y="${hy}" ${hf} text-anchor="end">${isU?'Estimated value':'Value (USD)'}</text>`
+    +(isU?'':`<text x="${cols.loc}" y="${hy}" ${hf} text-anchor="end">Value (${CUR})</text>`)
+    +`<line x1="64" y1="${hy+9}" x2="736" y2="${hy+9}" stroke="#BFD3F5"/>`;
+  for(let i=0;i<T;i++){
+    const y=i+1,ry=ry0+i*rowH,tb=(ry+rowH*.68).toFixed(1),isM=ms.includes(y),isL=y===T;
+    if(isL)p2+=`<rect x="52" y="${ry.toFixed(1)}" width="696" height="${rowH.toFixed(1)}" rx="4" fill="#E3F6EA"/>`;
+    else if(i%2===0)p2+=`<rect x="52" y="${ry.toFixed(1)}" width="696" height="${rowH.toFixed(1)}" rx="4" fill="#E8F0FF" opacity="0.55"/>`;
+    const w=(isM||isL)?'font-weight="bold" ':'',fl=isL?G:'#0B1F4B',a=`font-size="${fs.toFixed(1)}" ${w}fill="${fl}"`;
+    p2+=(hasAge?`<text x="64" y="${tb}" ${a}>${ag+y}</text><text x="140" y="${tb}" ${a}>${y}</text>`:`<text x="64" y="${tb}" ${a}>${y}</text>`)
+      +`<text x="${cols.ann}" y="${tb}" ${a} text-anchor="end">${sim.ann[i]>0?US(sim.ann[i]):'—'}</text><text x="${cols.tot}" y="${tb}" ${a} text-anchor="end">${US(sim.inv[i])}</text><text x="${cols.val}" y="${tb}" ${a} text-anchor="end">${US(sim.val[i])}</text>`
+      +(isU?'':`<text x="${cols.loc}" y="${tb}" ${a} text-anchor="end">${LC(sim.val[i])}</text>`);
+  }
+  p2+=foot();
+
+  /* ---------- PAGE 3 ---------- */
+  let p3=head('Your investment strategy'+(fnm?' — '+fnm:''),3),y=165;
+  const gap=14;
+  const items=[[FQ().a+' contribution',US(P)+' '+BC()],[NN?'Contribution period':'Contribution',NN?yr(S):'One-time'],['Growth period',T>S?yr(T-S):'None'],hasAge?['Target age',(ag+T)+' years']:['Total duration',yr(T)],['Illustrative return',pc(R)+'% p.a.'],showSU?['Annual step-up',stp>0?pc(stp)+'% a year':'None']:['Total invested',US(invT)+' '+BC()]];
+  p3+=card(40,y,720,140)+ptx('Your strategy',64,y+32,20,500,B+'fill="#0B1F4B"',.58);
+  items.forEach(([a,b],i)=>{const x=64+(i%3)*224,yy=y+60+Math.floor(i/3)*44;p3+=ptx(a,x,yy,12,200,'fill="#44546A"',.54)+ptx(b,x,yy+20,17,205,B+'fill="#0B1F4B"',.62)});
+  y+=140+gap;
+  const cons=($('rc').value.trim()!==''&&isFinite(+$('rc').value))?cl(+$('rc').value,0,60)/100:Math.max(0,R-.04);
+  const high=($('rh').value.trim()!==''&&isFinite(+$('rh').value))?cl(+$('rh').value,0,60)/100:R+.04;
+  const scn=[['Conservative',cons],['Base case',R],['Higher',high]].map(([nme,r])=>({nme,r,v:simulate(P,r,S,T,stp).val[T-1]}));
+  const sc3=isU?736:560,hy3=y+62,hf3='font-size="12" font-weight="bold" fill="#1D4ED8"';
+  p3+=card(40,y,720,184)+ptx('Scenario analysis',64,y+32,20,300,B+'fill="#0B1F4B"',.58)+ptx('Illustrations, not predictions',736,y+32,12,260,'fill="#44546A" text-anchor="end"',.54)
+    +`<text x="64" y="${hy3}" ${hf3}>Scenario</text><text x="250" y="${hy3}" ${hf3}>Return assumption</text><text x="${sc3}" y="${hy3}" ${hf3} text-anchor="end">Potential value (${BC()})</text>`+(isU?'':`<text x="736" y="${hy3}" ${hf3} text-anchor="end">In ${CUR}</text>`)
+    +`<line x1="64" y1="${hy3+8}" x2="736" y2="${hy3+8}" stroke="#BFD3F5"/>`;
+  scn.forEach((q,i)=>{
+    const ry=hy3+14+i*32,tb=ry+21,bs=i===1,a=`font-size="15" ${bs?'font-weight="bold" ':''}fill="${bs?G:'#0B1F4B'}"`;
+    if(bs)p3+=`<rect x="52" y="${ry}" width="696" height="30" rx="6" fill="#E3F6EA"/>`;
+    p3+=`<text x="64" y="${tb}" ${a}>${q.nme}</text><text x="250" y="${tb}" ${a}>${pc(q.r)}% p.a.</text><text x="${sc3}" y="${tb}" ${a} text-anchor="end">${US(q.v)}</text>`+(isU?'':`<text x="736" y="${tb}" ${a} text-anchor="end">${LC(q.v)}</text>`);
+  });
+  y+=184+gap;
+  if(S>=2&&showSU){
+    const a=stp>0?stp:.10,baseV=(stp>0?simulate(P,R,S,T,0):sim).val[T-1],altV=(stp>0?sim:simulate(P,R,S,T,.10)).val[T-1];
+    p3+=card(40,y,720,164)+ptx('Without step-up vs with step-up',64,y+32,20,420,B+'fill="#0B1F4B"',.58)
+      +(stp>0?'':ptx('Illustration: raise your SIP every year',736,y+32,12,260,'fill="#44546A" text-anchor="end"',.54));
+    p3+=card(64,y+46,326,66,'#E8F0FF','#BFD3F5')+ptx('Fixed SIP (no increase)',80,y+66,12,294,'fill="#44546A"',.54)+ptx(US(baseV),80,y+92,22,294,B+'fill="#0B1F4B"',.62)+ptx(`${US(P)} ${FQ().e}`,200,y+92,11,170,'fill="#44546A"',.54);
+    const path=[0,1,2].filter(k=>k<S).map(k=>US(P*Math.pow(1+a,k))).join(' → ')+(S>3?' → …':'');
+    p3+=card(410,y+46,326,66,'#E3F6EA','#B5E0C4')+ptx(`Step-up SIP (+${pc(a)}% a year)`+(stp>0?'':' — illustration'),426,y+66,12,294,'fill="#44546A"',.54)+ptx(US(altV),426,y+92,22,294,B+'fill="'+G+'"',.62)+ptx(path,426,y+106,10,294,'fill="#44546A"',.54);
+    p3+=ptx(`Difference: ${US(altV-baseV)}${isU?'':' (≈ '+LC(altV-baseV)+')'} more with the step-up`,64,y+142,16,672,B+'fill="'+G+'"',.6);
+    y+=164+gap;
+  }
+  if(ga>0){
+    const unit=simulate(1,R,S,T,stp).val[T-1],req=unit>0?ga/unit:0,diff=vT-ga;
+    p3+=card(40,y,720,92,'#E8F0FF','#BFD3F5')+ptx('Goal: '+gname,64,y+28,18,672,B+'fill="#0B1F4B"',.6)
+      +ptx(`Target ${US(ga)}${hasAge?' by age '+(ag+T):' in '+yr(T)}. Required ${stp>0?'starting ':''}${NN?fqLow()+' investment':'lump sum'}: about ${US(req)}${isU?'':' (≈ '+LC(req)+')'}.`,64,y+52,13,672,'fill="#0B1F4B"',.55)
+      +ptx(`${NN?'At '+US(P)+' '+FQ().p:'With a lump sum of '+US(P)}, your plan is projected to be ${US(Math.abs(diff))} ${diff>=0?'above':'below'} the target.`,64,y+74,14,672,B+'fill="'+(diff>=0?G:'#44546A')+'"',.58);
+    y+=92+gap;
+  }
+  const why=[NN?['Regular investing',`Investing ${FQ().e} builds discipline and smooths out market ups and downs.`]:['Invest early','Investing the full amount at the start gives it the longest time to grow.'],['Time in market',`${yr(T)} gives your money time to grow instead of trying to time the market.`],['Compounding','Returns can earn returns of their own, so growth builds faster in later years.'],showSU?['Step-up contributions',stp>0?`Raising your SIP ${pc(stp)}% a year lets your investment grow with your income.`:'Raising your SIP as your income grows can add meaningfully to the final value.']:['Long-term focus','Staying invested for the long term helps you ride out short-term market swings.']];
+  const ww=(720-3*12)/4;
+  p3+=ptx('Why this plan works',40,y+20,17,400,B+'fill="#0B1F4B"',.58);
+  why.forEach(([a,b],i)=>{
+    const x=40+i*(ww+12),yy=y+32;
+    p3+=card(x,yy,ww,98,'#E8F0FF','#BFD3F5')+ptx(a,x+12,yy+24,13,ww-24,B+'fill="#1D4ED8"',.6);
+    wrapTxt(b,25).slice(0,4).forEach((ln,k)=>{p3+=ptx(ln,x+12,yy+44+k*14,11,ww-24,'fill="#0B1F4B"',.52)});
+  });
+  const dl=['This document is an illustrative projection and not a guarantee of investment returns. Actual values may be higher or lower',
+    'depending on market performance, fees, taxes, currency movements and other factors. Capital may be lost.',
+    `Assumes ${NN?fqLow()+' investing at the start of each '+FQ().u:'a one-time investment at the start'} and a constant ${pc(R)}% effective annual return. Scenarios are not predictions.`,
+    isU?'Investment is made in '+BC()+'.':`Investment is made in USD. ${meta.name} values use 1 USD = ${meta.symbol}${fxs} and are indicative.`];
+  p3+=card(40,970,720,108,'#E8F0FF','#BFD3F5')+ptx('IMPORTANT INFORMATION',64,994,12,300,B+'fill="#1D4ED8" letter-spacing="1"',.66);
+  dl.forEach((t,i)=>{p3+=ptx(t,64,1016+i*17,11,672,'fill="#44546A"',.52)});
+  p3+=foot();
+  const pages=[wrap(p1),wrap(p2),wrap(p3)];
+  if(fdl.length||isI){
+    let p4=head(isI&&fdl.length?'Currency scenario and fund details':isI?'Currency scenario':'Your fund',4),y4=170;
+    if(isI){
+      const Lg=Math.max(0,+$('lo').value||0)/100,Hg=Math.max(0,+$('hi').value||0)/100;
+      const rc=[["Today's rate",0],[`USD strengthens ${pc(Lg)}% a year`,Lg],[`USD strengthens ${pc(Hg)}% a year`,Hg]].map(([nme,g])=>{const rate=FX*Math.pow(1+g,T);return{nme,rate,v:vT*rate}});
+      const b0=rc[0].v,hy=y4+92,hf='font-size="12" font-weight="bold" fill="#1D4ED8"';
+      p4+=card(40,y4,720,236)+ptx('If the US dollar strengthens against the rupee',64,y4+34,20,672,B+'fill="#0B1F4B"',.58)
+        +ptx('Your investment is in US dollars, so a stronger dollar raises its rupee value. Illustrations, not predictions.',64,y4+56,12,672,'fill="#44546A"',.52)
+        +`<text x="64" y="${hy}" ${hf}>Scenario</text><text x="400" y="${hy}" ${hf} text-anchor="end">1 USD at year ${T}</text><text x="580" y="${hy}" ${hf} text-anchor="end">Value in INR</text><text x="736" y="${hy}" ${hf} text-anchor="end">Extra vs today's rate</text>`
+        +`<line x1="64" y1="${hy+8}" x2="736" y2="${hy+8}" stroke="#BFD3F5"/>`;
+      rc.forEach((q,i)=>{
+        const ry=hy+14+i*34,tb=ry+23,a=`font-size="14" ${i===2?'font-weight="bold" ':''}fill="${i===2?G:'#0B1F4B'}"`;
+        if(i===2)p4+=`<rect x="52" y="${ry}" width="696" height="32" rx="6" fill="#E3F6EA"/>`;
+        p4+=`<text x="64" y="${tb}" ${a}>${q.nme}</text><text x="400" y="${tb}" ${a} text-anchor="end">₹${(+q.rate.toFixed(2)).toLocaleString('en-IN')}</text><text x="580" y="${tb}" ${a} text-anchor="end">${LC(q.v/FX)}</text><text x="736" y="${tb}" ${a} text-anchor="end">${i?'+'+LC((q.v-b0)/FX):'—'}</text>`;
+      });
+      p4+=ptx(`Estimated value in USD: ${US(vT)} — the rupee value above changes only with the exchange rate.`,64,y4+222,12,672,'fill="#44546A"',.54);
+      y4+=236+14;
+    }
+    if(fdl.length){
+      const rN=Math.ceil(fdl.length/2),fh=164+(rN-1)*60;
+      p4+=card(40,y4,720,fh)+ptx(fnm||'Fund information',64,y4+38,24,672,B+'fill="#0B1F4B"',.58)+`<rect x="64" y="${y4+50}" width="44" height="4" rx="2" fill="#1D6BFF"/>`;
+      fdl.forEach(([a,b],i)=>{const x=64+(i%2)*346,yy=y4+92+Math.floor(i/2)*60;p4+=a?ptx(a,x,yy,13,320,'fill="#44546A"',.54)+ptx(b,x,yy+22,17,320,B+'fill="#0B1F4B"',.6):ptx(b,x,yy+12,17,320,B+'fill="#0B1F4B"',.6)});
+      p4+=ptx('Fund details are taken from the fund brochure. Please refer to the official offer document for full terms.',64,y4+fh-18,11,672,'fill="#44546A"',.52);
+    }
+    p4+=foot();pages.push(wrap(p4));
+  }
+  if(cmpOn()){
+    const Dp={P,S,T,R,pc,U:USs,infl:infP,iOK:infP>0,dfl:Math.pow(1+infP,T),BS,LB,tx:ptx,B};
+    Dp.cs=cmpSeries(P,S,T,R,stp);
+    const cs=Dp.cs,e=T-1,pal=PAL(0);
+    let pq=head('SIP vs FD and savings account',pages.length+1);
+    const cbk=compareBlock(Dp,40,170,720,pal);pq+=cbk.s;
+    let yy=170+cbk.h+16;
+    const rFd=(1+cs.fdr)/(1+infP)-1,rSv=(1+cs.svr)/(1+infP)-1;
+    const lines=[`The SIP at ${pc(R)}% a year could grow to ${US(cs.sip[e])}, against ${US(cs.fd[e])} in an FD at ${pc(cs.fdr)}% and ${US(cs.sv[e])} in a savings account at ${pc(cs.svr)}%.`];
+    if(infP>0)lines.push(`With ${pc(infP)}% inflation, the FD grows about ${pc(rFd)}% a year in today's money and the savings account about ${pc(rSv)}%.`);
+    lines.push('The SIP is market-linked, so its value can fall as well as rise. An FD return is fixed by the bank for the term.');
+    const wl=lines.flatMap(l=>wrapTxt(l,100)),ih=64+wl.length*20;
+    pq+=card(40,yy,720,ih,'#E8F0FF','#BFD3F5')+ptx('What this shows',64,yy+32,18,672,B+'fill="#0B1F4B"',.6);
+    wl.forEach((l,i)=>{pq+=ptx(l,64,yy+58+i*20,13,672,'fill="#0B1F4B"',.55)});
+    yy+=ih+14;
+    pq+=card(40,yy,720,70,'#FFFFFF','#D6E4F5')+ptx('FD and savings rates are assumptions and differ by bank. SIP returns are not guaranteed and may be lower.',64,yy+30,12,672,'fill="#44546A"',.52)+ptx('Taxes, fees and exit loads are not included. Past performance does not guarantee future returns.',64,yy+52,12,672,'fill="#44546A"',.52);
+    pq+=foot();pages.push(wrap(pq));
+  }
+  if(isI&&$('cmp').value!=='0'){
+    /* ---------- GLOBAL vs INDIAN MARKET: 3 columns (Indian | Global | Currency difference), inflation and year-by-year graph ---------- */
+    const Lg=Math.max(0,+$('lo').value||0)/100,Hg=Math.max(0,+$('hi').value||0)/100,infl=Math.max(0,+$('inf').value||0)/100,dfl=Math.pow(1+infl,T);
+    const gv=g=>vT*Math.pow(1+g,T),eff=g=>(1+R)*(1+g)-1,real=g=>(1+R)*(1+g)/(1+infl)-1;
+    const plus=t=>t.charAt(0)==='-'?t:'+'+t;
+    let p6=head('Global market vs Indian market',pages.length+1);
+    const xI=392,xG=560,xD=736;
+    const rowsC=[
+      {l:NN?FQ().a+' SIP':'Lump sum',a:LC(P),b:'$'+P.toLocaleString('en-US')+' ≈ '+LC(P),d:'—'},
+      {l:'Total invested',a:LC(invT),b:LC(invT),d:'—'},
+      {l:'Assumed return a year',a:pc(R)+'% in ₹',b:pc(R)+'% in $',d:'—'},
+      {sec:'Value after '+yr(T)+' (in rupees)'},
+      {l:"Rupee at today's rate",a:LC(vT),b:LC(vT),d:'—'},
+      {l:'USD +'+pc(Lg)+'% a year',a:LC(vT),b:LC(gv(Lg)),d:plus(LC(gv(Lg)-vT))},
+      {l:'USD +'+pc(Hg)+'% a year',a:LC(vT),b:LC(gv(Hg)),d:plus(LC(gv(Hg)-vT)),hl:1},
+      {sec:'Yearly growth in rupee terms'},
+      {l:'USD +'+pc(Lg)+'% a year',a:pc(R)+'%',b:pc(eff(Lg))+'%',d:'+'+pc(eff(Lg)-R)+'%'},
+      {l:'USD +'+pc(Hg)+'% a year',a:pc(R)+'%',b:pc(eff(Hg))+'%',d:'+'+pc(eff(Hg)-R)+'%',hl:1}
+    ];
+    if(infl>0){
+      rowsC.push({sec:'After inflation of '+pc(infl)+'% a year (in today\'s money)'});
+      rowsC.push({l:'USD +'+pc(Lg)+'% a year',a:LC(vT/dfl),b:LC(gv(Lg)/dfl),d:plus(LC((gv(Lg)-vT)/dfl))});
+      rowsC.push({l:'USD +'+pc(Hg)+'% a year',a:LC(vT/dfl),b:LC(gv(Hg)/dfl),d:plus(LC((gv(Hg)-vT)/dfl)),hl:1});
+      rowsC.push({l:'Real growth, USD +'+pc(Hg)+'%',a:pc(real(0))+'%',b:pc(real(Hg))+'%',d:'+'+pc(real(Hg)-real(0))+'%',hl:1});
+    }
+    const tH=rowsC.reduce((n,q)=>n+(q.sec?26:30),0),tEnd=298+tH;
+    p6+=card(40,170,720,tEnd+12-170)+ptx('How currency changes your growth',64,204,20,672,B+'fill="#0B1F4B"',.58)
+      +ptx('Same investment amount and same assumed return. The only difference is the US dollar against the rupee.',64,226,12,672,'fill="#44546A"',.52)
+      +`<rect x="578" y="244" width="172" height="${tEnd+4-244}" rx="12" fill="#E3F6EA"/>`
+      +ptx('Indian market',xI,262,14,130,B+'fill="#1D4ED8" text-anchor="end"',.6)+ptx('invest in ₹',xI,278,11,130,'fill="#44546A" text-anchor="end"',.52)
+      +ptx('Global market',xG,262,14,160,B+'fill="#1D4ED8" text-anchor="end"',.6)+ptx('invest in $, shown in ₹',xG,278,11,160,'fill="#44546A" text-anchor="end"',.52)
+      +ptx('Currency difference',xD,262,14,150,B+'fill="'+G+'" text-anchor="end"',.6)+ptx('Global minus Indian',xD,278,11,150,'fill="#44546A" text-anchor="end"',.52)
+      +`<line x1="64" y1="290" x2="736" y2="290" stroke="#BFD3F5"/>`;
+    let cyy=298;
+    rowsC.forEach(q=>{
+      if(q.sec){p6+=ptx(q.sec,64,cyy+18,12,520,B+'fill="#1D4ED8" letter-spacing="0.5"',.6)+`<line x1="64" y1="${cyy+24}" x2="736" y2="${cyy+24}" stroke="#E1EAF5"/>`;cyy+=26;return}
+      const by=cyy+21,hb=q.hl?B:'';
+      p6+=ptx(q.l,64,by,14,200,hb+'fill="#0B1F4B"',.56)
+        +ptx(q.a,xI,by,14,130,hb+'fill="#0B1F4B" text-anchor="end"',.6)
+        +ptx(q.b,xG,by,14,160,hb+'fill="#0B1F4B" text-anchor="end"',.6)
+        +ptx(q.d,xD,by,14,140,B+'fill="'+G+'" text-anchor="end"',.6)
+        +`<line x1="64" y1="${cyy+29}" x2="736" y2="${cyy+29}" stroke="#E1EAF5"/>`;
+      cyy+=30;
+    });
+    /* year-by-year graph */
+    const extra=gv(Hg)-vT;
+    const Ib=[],Gb=[];sim.val.forEach((v,i)=>{Ib.push(v*FX);Gb.push(v*FX*Math.pow(1+Hg,i+1))});
+    const gy=tEnd+28,gh=Math.min(272,976-20-gy),gpx=64,gpw=672,gtop=gy+84,gbase=gy+gh-34,gch=gbase-gtop,slot=gpw/T,bw=Math.min(28,slot*.4),mx=Math.max(...Gb,...Ib,1),step=T<=8?1:T<=16?2:5;
+    p6+=card(40,gy,720,gh)+ptx('Growth year by year',64,gy+34,20,300,B+'fill="#0B1F4B"',.58)
+      +ptx(Hg>0?`Currency difference: +${LC(extra)}`:'No currency effect in this scenario',736,gy+34,14,360,B+'fill="'+G+'" text-anchor="end"',.58)
+      +`<rect x="${gpx}" y="${gy+48}" width="12" height="12" rx="3" fill="#4C84F5" opacity=".6"/>`+ptx('Indian market: '+LC(vT),gpx+18,gy+59,12,200,'fill="#0B1F4B"',.55)
+      +`<rect x="${gpx+230}" y="${gy+48}" width="12" height="12" rx="3" fill="#22A559"/>`+ptx('Global market, USD +'+pc(Hg)+'% a year',gpx+248,gy+59,12,260,B+'fill="#0B1F4B"',.55);
+    let gb='',gl='';
+    for(let i=0;i<T;i++){
+      const t=i+1,cx=gpx+slot*(i+.5),hi=gch*Ib[i]/mx,hg=gch*Gb[i]/mx,last=t===T;
+      gb+=`<rect x="${(cx-bw-1).toFixed(1)}" y="${(gbase-hi).toFixed(1)}" width="${bw.toFixed(1)}" height="${hi.toFixed(1)}" rx="3" fill="#4C84F5" opacity=".6"/>`
+        +`<rect x="${(cx+1).toFixed(1)}" y="${(gbase-hg).toFixed(1)}" width="${bw.toFixed(1)}" height="${hg.toFixed(1)}" rx="3" fill="${last?'#14803F':'#22A559'}"/>`;
+      if(t%step===0||last)gl+=`<text x="${cx.toFixed(1)}" y="${gbase+16}">${T<=10?'Yr '+t:t}</text>`;
+      if(last)gb+=ptx(LC(Gb[i]/FX),+(cx+1+bw).toFixed(1),+(gbase-hg-8).toFixed(1),14,150,B+'fill="'+G+'" text-anchor="end"',.6);
+    }
+    p6+=gb+`<line x1="${gpx}" y1="${gbase}" x2="${gpx+gpw}" y2="${gbase}" stroke="#C9D6E6"/><g font-size="12" fill="#44546A" text-anchor="middle">${gl}</g>`;
+    const dc=['Same assumed return of '+pc(R)+'% a year in both columns, so the difference comes only from the exchange rate. Real funds will differ.',
+      `Global market is invested in USD; rupee values use 1 USD = ${meta.symbol}${fxs} today and the USD-strengthening scenarios above.`,
+      'If the dollar weakens against the rupee the difference turns negative; currency moves cannot be predicted. Excludes taxes and fees.'];
+    p6+=card(40,976,720,84,'#E8F0FF','#BFD3F5')+ptx('IMPORTANT INFORMATION',64,998,12,300,B+'fill="#1D4ED8" letter-spacing="1"',.66);
+    dc.forEach((t,i)=>{p6+=ptx(t,64,1018+i*16,11,672,'fill="#44546A"',.52)});
+    p6+=foot();pages.push(wrap(p6));
+  }
+  if(RI){
+    let p5=head('Your retirement income plan',pages.length+1);
+    const sel=RI.sel,W=sel.W,ok=sel.dead===null,lk=d=>d===null?(RI.ages?'Beyond age 99':'Beyond year 30'):(RI.ages?'Age ':'Year ')+Math.floor(d);
+    p5+=card(40,170,720,205,'#E3F6EA','#B5E0C4')
+      +ptx('You can get every month',64,210,17,672,'fill="#44546A"',.54)
+      +ptx(US(W),64,280,64,672,B+'fill="'+G+'"',.62)
+      +ptx((isU?'':'≈ '+LC(W)+' a month  •  ')+'first-year amount, starting at '+RI.at,64,310,15,672,'fill="#44546A"',.54)
+      +`<line x1="64" y1="332" x2="736" y2="332" stroke="#B5E0C4"/>`
+      +ptx('Fund value at '+(RI.ages?'age 99':'year 30')+':',64,360,17,400,'fill="#44546A"',.54)
+      +ptx(US(sel.arr[RI.N]||0),736,360,22,380,B+'fill="'+G+'" text-anchor="end"',.6);
+    const st=[[NN?'You invest '+FQ().e:'You invest one time',US(P)+(stp>0?' (+'+pc(stp)+'% each year)':'')],['Your money grows for',T+' years at '+pc(R)+'% a year'],['Fund value at '+RI.at,US(RI.F)+(isU?'':'  (≈ '+LC(RI.F)+')')],['Year 1 withdrawal ('+RI.wr+'% of fund)',US(RI.F*RI.wr/100)],['Paid to you every month (year 1)',US(W)]];
+    p5+=card(40,395,720,300)+ptx('How this works',64,430,20,672,B+'fill="#0B1F4B"',.58);
+    st.forEach(([l,v],i)=>{const y=482+i*44,last=i===4;
+      p5+=(i?`<line x1="64" y1="${y-27}" x2="736" y2="${y-27}" stroke="#E1EAF5"/>`:'')+ptx((i+1)+'.  '+l,64,y,16,330,'fill="#44546A"',.54)+ptx(v,736,y,18,330,B+'fill="'+(last?G:'#0B1F4B')+'" text-anchor="end"',.6)});
+    const hd='font-size="12" fill="#44546A"',YN=Math.min(20,RI.N);
+    p5+=card(40,715,720,362)+ptx('What you get each year',64,749,20,672,B+'fill="#0B1F4B"',.58)
+      +ptx('Every year you take '+RI.wr+'% of your fund. The rest stays invested and keeps growing at '+pc(RI.pr)+'% a year.',64,770,12,672,'fill="#44546A"',.52);
+    const colX=[64,412],per=Math.ceil(YN/2);
+    colX.forEach((x0,c)=>{
+      p5+=`<text x="${x0}" y="802" ${hd}>${RI.ages?'Age':'Year'}</text><text x="${x0+200}" y="802" ${hd} text-anchor="end">You get / year</text><text x="${x0+296}" y="802" ${hd} text-anchor="end">Fund left</text><line x1="${x0}" y1="810" x2="${x0+296}" y2="810" stroke="#E1EAF5"/>`;
+      for(let k=0;k<per;k++){
+        const n=c*per+k+1;if(n>YN)break;
+        const y=834+k*22,inc=sel.inc[n]||0,bal=sel.arr[n]||0;
+        p5+=`<text x="${x0}" y="${y}" font-size="13" font-weight="bold" fill="#0B1F4B">${RI.ages?(RI.ra+n-1):'Year '+n}</text><text x="${x0+200}" y="${y}" font-size="13" font-weight="bold" fill="${G}" text-anchor="end">${US(inc)}</text><text x="${x0+296}" y="${y}" font-size="13" fill="#44546A" text-anchor="end">${US(bal)}</text>`;
+      }
+    });
+    p5+=ptx('Income changes each year with the fund value. Not adjusted for inflation. Assumes '+pc(RI.pr)+'% yearly return after retirement'+(RI.ages?', planned till age 99':'')+'. Illustrative only.',64,1062,11,672,'fill="#44546A"',.52);
+    p5+=foot();pages.push(wrap(p5));
+  }
+  return pages;
+}
+function makePdf(imgs){
+  const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+  const push=x=>{const b=typeof x==='string'?enc.encode(x):x;parts.push(b);len+=b.length};
+  let nA=0;imgs.forEach(im=>{if(im.link)im.annId=2+imgs.length*3+1+(nA++)});
+  const N=2+imgs.length*3+nA;
+  push('%PDF-1.4\n');
+  offs[1]=len;push('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+  offs[2]=len;push('2 0 obj\n<< /Type /Pages /Kids ['+imgs.map((_,i)=>(3+i*3)+' 0 R').join(' ')+'] /Count '+imgs.length+' >>\nendobj\n');
+  imgs.forEach((im,i)=>{
+    const pg=3+i*3,ct=pg+1,ig=pg+2,cs='q 595.28 0 0 841.89 0 0 cm /Im0 Do Q';
+    offs[pg]=len;push(pg+' 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 '+ig+' 0 R >> >> /Contents '+ct+' 0 R'+(im.annId?' /Annots ['+im.annId+' 0 R]':'')+' >>\nendobj\n');
+    offs[ct]=len;push(ct+' 0 obj\n<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream\nendobj\n');
+    offs[ig]=len;push(ig+' 0 obj\n<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bytes.length+' >>\nstream\n');push(im.bytes);push('\nendstream\nendobj\n');
+  });
+  imgs.forEach(im=>{if(!im.annId)return;
+    const sx=595.28/800,sy=841.89/1131,L=im.link,f=v=>v.toFixed(2),u=L.url.replace(/[\\()]/g,m=>'\\'+m);
+    offs[im.annId]=len;push(im.annId+' 0 obj\n<< /Type /Annot /Subtype /Link /Rect ['+f(L.x*sx)+' '+f(841.89-(L.y+L.h)*sy)+' '+f((L.x+L.w)*sx)+' '+f(841.89-L.y*sy)+'] /Border [0 0 0] /A << /S /URI /URI ('+u+') >> >>\nendobj\n');
+  });
+  const xr=len;push('xref\n0 '+(N+1)+'\n0000000000 65535 f \n');
+  for(let i=1;i<=N;i++)push(String(offs[i]).padStart(10,'0')+' 00000 n \n');
+  push('trailer\n<< /Size '+(N+1)+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF');
+  return new Blob(parts,{type:'application/pdf'});
+}
+async function svgCanvas(svg){
+  const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'})),img=new Image();
+  try{
+    await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('The plan page could not be rendered by this browser'));img.src=url});
+    const c=document.createElement('canvas');c.width=1600;c.height=2262;
+    const g=c.getContext('2d');if(!g)throw new Error('Canvas unavailable');
+    g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+    return c;
+  }finally{URL.revokeObjectURL(url)}
+}
+async function planBlob(){
+  const imgs=[];
+  for(const svg of buildPlan()){
+    const c=await svgCanvas(svg),b=await canvasBlob(c,'image/jpeg',0.92);
+    imgs.push({bytes:new Uint8Array(await b.arrayBuffer()),w:c.width,h:c.height,link:imgs.length===0?PLAN_LINK:null});
+  }
+  return makePdf(imgs);
+}
+const planName=()=>'Investment_Plan_'+($('nm').value.trim()||'customer').replace(/[^\w\-]+/g,'_')+'_'+($('p').value||0)+'_'+($('ty').value||0)+'yr.pdf';
+$('mi').onclick=()=>{mode='info';render();msg('')};
+$('mp').onclick=()=>{mode='plan';render();msg('Personal plan preview ready. Download or share it as a PDF below.')};
+$('pbd').onclick=locked(async()=>{
+  try{msg('Creating PDF…');const b=await planBlob(),ok=await saveBlob(b,planName());msg(ok===false?'Download cancelled.':'PDF created.')}
+  catch(e){console.error(e);msg('PDF failed: '+(e.message||'unknown browser error'))}
+});
+$('pbsh').onclick=locked(async()=>{
+  try{
+    msg('Creating PDF…');const b=await planBlob(),f=new File([b],planName(),{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){if(await nshare({files:[f],title:'My investment plan'},b,planName()))msg('Shared.')}
+    else{const ok=await saveBlob(b,planName());msg(ok===false?'Download cancelled.':'Sharing is not supported in this browser, so the PDF was downloaded instead.')}
+  }catch(e){if(e&&e.name==='AbortError'){msg('');return}console.error(e);msg('PDF share failed: '+(e.message||'unknown error'))}
+});
+function syncAge(){
+  const a=parseInt($('ag').value,10),t=parseInt($(($('gl').value==='Retirement')?'ra':'tg').value,10);
+  if(a>0&&t>a)$('ty').value=cl(t-a,1,40);
+  schedule();
+}
+$('ag').addEventListener('input',syncAge);$('tg').addEventListener('input',syncAge);$('ra').addEventListener('input',syncAge);$('gl').addEventListener('input',syncAge);
+$('ty').addEventListener('input',()=>{const a=parseInt($('ag').value,10),t=parseInt($('ty').value,10);if(a>0&&t>0){$('tg').value=a+t;if($('gl').value==='Retirement')$('ra').value=a+t;save()}});
+
+const FALLBACK_RATES={USD:1,INR:96.5,AED:3.6725,SAR:3.75,QAR:3.64,KWD:0.306,BHD:0.376,OMR:0.3845,GBP:0.75,EUR:0.86,CAD:1.38,AUD:1.52};
+let liveRates={...FALLBACK_RATES};
+const GULF=['AED','SAR','QAR','KWD','BHD','OMR'];
+async function jget(url){const ac=new AbortController(),to=setTimeout(()=>ac.abort(),7000);try{const r=await fetch(url,{cache:'no-store',signal:ac.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(to)}}
+const RATE_SRC=[
+  ['Frankfurter (ECB)',c=>jget('https://api.frankfurter.dev/v1/latest?base=USD&symbols='+encodeURIComponent(c)).then(d=>d.rates&&d.rates[c])],
+  ['Frankfurter (ECB)',c=>jget('https://api.frankfurter.app/latest?from=USD&to='+encodeURIComponent(c)).then(d=>d.rates&&d.rates[c])],
+  ['exchangerate-api.com',c=>jget('https://open.er-api.com/v6/latest/USD').then(d=>d.rates&&d.rates[c])]
+];
+async function liveRate(c){
+  /* ECB does not publish Gulf currencies, so try the wider source first for those */
+  const order=GULF.includes(c)?[RATE_SRC[2],RATE_SRC[0],RATE_SRC[1]]:RATE_SRC;
+  for(const [name,fn] of order){try{const v=Number(await fn(c));if(v>0)return{rate:v,src:name}}catch(e){}}
+  return null;
+}
+async function fetchLiveRate(){
+  if(isIN()){$('fx').value='1';$('rateStatus').textContent='Indian market: investment is made in INR, so no conversion is needed.';render();save();return}
+  const c=$('currency').value;
+  if(c==='USD'){ $('fx').value='1'; $('rateStatus').textContent='Live rate: 1 USD = 1 USD'; render(); save(); return; }
+  const HOSTED=!!(window.claude&&window.claude.use);
+  const fallback=why=>{
+    const rate=liveRates[c]||FALLBACK_RATES[c]||1;
+    $('fx').value=rate;
+    $('rateStatus').textContent=HOSTED?'Approximate saved rate: 1 USD = '+rate+' '+c+'. Please edit it to today\'s rate.':why+' Using a saved rate for '+c+'. Edit it manually or tap Refresh.';
+    render();save();
+  };
+  if(HOSTED){fallback('');return}
+  if(navigator.onLine===false){fallback('You are offline.');return}
+  $('rateStatus').textContent='Fetching live USD → '+c+' rate…';
+  const got=await liveRate(c);
+  if($('currency').value!==c||isIN())return;
+  if(!got){fallback('Could not reach a rate service.');return}
+  liveRates[c]=got.rate;
+  $('fx').value=got.rate.toFixed(6).replace(/0+$/,'').replace(/\.$/,'');
+  $('rateStatus').textContent='Live rate: 1 USD = '+$('fx').value+' '+c+' • '+got.src+' • updated '+new Date().toLocaleTimeString();
+  render();save();
+}
+$('rf').onclick=fetchLiveRate;
+if(window.claude&&window.claude.use){$('rateNote').textContent='Exchange rates are saved estimates, so check them before sharing.';$('rf').style.display='none'}
+addEventListener('online',()=>{if(!isIN()&&$('currency').value!=='USD')fetchLiveRate()});
+$('currency').addEventListener('change',fetchLiveRate);$('mkt').addEventListener('change',fetchLiveRate);
+$('fx').addEventListener('input',()=>{$('rateStatus').textContent='Manual rate: 1 USD = '+$('fx').value+' '+$('currency').value;});
+/* ===== Client mode ===== */
+let CM=false,STAT=null,CMBASE=null;
+const CMCFG={IN:{12:[500,100000,500],4:[1000,300000,1000],2:[2000,600000,2000],1:[5000,1200000,5000],0:[10000,5000000,10000]},GL:{12:[50,5000,50],4:[100,15000,100],2:[200,30000,200],1:[500,60000,500],0:[500,200000,500]}};
+const money=v=>BS()+Math.round(v).toLocaleString(LB());
+const holdTxt=n=>n>0?yr(n):'No extra holding';
+$('cmf').innerHTML=[[12,'Monthly'],[4,'Quarterly'],[2,'Half-yearly'],[1,'Yearly'],[0,'Lump sum']].map(([k,n])=>'<button type="button" data-f="'+k+'">'+n+'</button>').join('');
+function cmSetup(){
+  const f=fqv(),cfg=CMCFG[isIN()?'IN':'GL'][f];let p=Math.max(1,+$('p').value||0);
+  if(p<cfg[0]){p=cfg[0];$('p').value=p}
+  const a=$('car');a.min=cfg[0];a.max=Math.max(cfg[1],Math.ceil(p/cfg[2])*cfg[2]);a.step=cfg[2];a.value=p;
+  const t=Math.max(1,Math.min(40,+$('ty').value||1)),sy=Math.max(1,Math.min(t,+$('sy').value||1));
+  $('cyrow').hidden=!f;
+  if(f){$('cyr').value=sy;$('chr').min=0;$('chr').max=Math.min(30,40-sy);$('chr').value=t-sy;$('chl').textContent='Then hold (no payments)';$('cyv').textContent=yr(sy);$('chv').textContent=holdTxt(t-sy)}
+  else{$('chr').min=1;$('chr').max=40;$('chr').value=t;$('chl').textContent='Years to hold';$('chv').textContent=yr(t)}
+  $('cmf').querySelectorAll('button').forEach(b=>{const on=b.dataset.f===String(f);b.className=on?'':'o';b.setAttribute('aria-pressed',on)});
+  $('cal').textContent=f?FQN[f].a+' SIP amount':'Lump sum amount';
+  $('cav').textContent=money(p);
+  const rv=parseFloat($('r').value)||0,rr=$('crr');
+  rr.max=Math.max(30,Math.ceil(rv));rr.value=rv;$('crv').textContent=(+rv.toFixed(2))+'%';crNote(rv);
+  cmUpdate();
+}
+function cmUpdate(){
+  if(!CM||!STAT)return;
+  const s=STAT,f=fqv(),w=f?FQN[f].e:'one time',INRs=v=>'₹'+KI(v).replace(/ L$/,' Lakh'),rate=g=>s.FX*Math.pow(1+g,s.T),v0=s.vT*s.FX;
+  const gs=[s.L,s.H2].filter(x=>x>0);
+  const plan=money(s.P)+' '+w+(f?' for '+yr(s.S)+(s.T>s.S?' + '+yr(s.T-s.S)+' hold':''):', held '+yr(s.T));
+  let inr='';
+  if(s.isI)inr='<div class="cmi">≈ <b>'+INRs(v0)+'</b> at today\'s rate (₹'+(+s.FX.toFixed(2))+' per $)'+'</div>';
+  $('cmr').innerHTML='<div class="cmk">'+plan+' • value after '+yr(s.T)+'</div>'
+   +'<div class="cmtop"><div class="cmb">'+s.U(s.vT)+'</div><div class="cmside"><span><b>'+s.U(s.inv)+'</b> you invest</span><span><b>'+s.U(s.gain)+'</b> growth</span></div></div>'
+   +'<div class="cmbar"><i style="width:'+Math.min(100,s.inv/s.vT*100).toFixed(1)+'%"></i></div>'
+   +'<div class="cmleg"><span><i style="background:#4C84F5"></i>You invest</span><span><i style="background:#22A559"></i>Growth</span></div>'+inr;
+  let c='';
+  if(s.isI){
+    const rows=[["At today's rate",0]].concat(gs.map(g=>['If the dollar gains '+s.pc(g)+'% a year',g]));
+    c='<div class="cmct">Rupee value with dollar appreciation</div>'+rows.map(([n,g],i)=>{const r=rate(g),v=s.vT*r;
+      return '<div class="cmcr"><div><b>'+n+'</b><small>₹'+(+s.FX.toFixed(2))+' → ₹'+(+r.toFixed(2))+' per $ in '+yr(s.T)+'</small></div><div class="cmcv">'+INRs(v)+(i?'<small>+'+INRs(v-v0)+' vs today\'s rate</small>':'')+'</div></div>'}).join('')
+      +'<div class="cmd">Dollar scenarios are illustrations, not predictions. The investment is in US dollars, so a stronger dollar raises its rupee value and a weaker dollar lowers it.'+(s.T>15?' Over long periods these assumptions compound a lot, so treat them as extreme cases.':'')+'</div>';
+  }
+  $('cmc').innerHTML=c;$('cmc').hidden=!c;
+  $('cmn').innerHTML=(s.iOK?'In today\'s money (after '+s.pc(s.infl)+'% inflation) about <b>'+s.U(s.vR)+'</b>. ':'')+'Assumes '+s.pc(s.R)+'% a year. Returns are not guaranteed and may be lower or higher.';
+}
+$('cmb').onclick=()=>{CMBASE=parseFloat($('r').value)||0;CM=true;document.body.classList.add('client');$('cm').hidden=false;mode='info';render();cmSetup();window.scrollTo(0,0)};
+$('cmx').onclick=()=>{CM=false;if(CMBASE!==null){$('r').value=CMBASE;CMBASE=null}document.body.classList.remove('client');$('cm').hidden=true;render();window.scrollTo(0,0)};
+$('car').addEventListener('input',()=>{$('p').value=$('car').value;$('cav').textContent=money(+$('car').value);schedule()});
+$('cyr').addEventListener('input',()=>{
+  const sy=+$('cyr').value;let hold=+$('chr').value;if(sy+hold>40)hold=40-sy;
+  $('chr').max=Math.min(30,40-sy);$('chr').value=hold;$('sy').value=sy;$('ty').value=sy+hold;
+  $('cyv').textContent=yr(sy);$('chv').textContent=holdTxt(hold);schedule()});
+$('chr').addEventListener('input',()=>{
+  const h=+$('chr').value;
+  if(fqv()){$('ty').value=(+$('sy').value||1)+h;$('chv').textContent=holdTxt(h)}
+  else{$('ty').value=h;$('chv').textContent=yr(h)}
+  schedule()});
+$('cmf').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('fq').value=b.dataset.f==='0'?'L':b.dataset.f;cmSetup();schedule()});
+function crNote(v){const e=$('crw');e.textContent='Assumed return, not guaranteed. Actual returns may be lower or higher.';e.className='cmwarn'}
+$('crr').addEventListener('input',()=>{const v=+$('crr').value;$('r').value=v;$('crv').textContent=(+v.toFixed(2))+'%';crNote(v);schedule()});
+addEventListener('scroll',()=>{if(!CM)return;const r=$('cmr'),y=scrollY;if(y>260&&!r.classList.contains('mini'))r.classList.add('mini');else if(y<100&&r.classList.contains('mini'))r.classList.remove('mini')},{passive:true});
+if(innerWidth>=900)document.querySelectorAll('details.grp').forEach(d=>d.open=true);
+let wasNarrow=innerWidth<700;
+addEventListener('resize',()=>{const n=innerWidth<700;if(n!==wasNarrow){wasNarrow=n;schedule()}});
+addEventListener('pagehide',save);
+
+/* Currency check: convert any amount between the supported currencies (USD-based rates) */
+const QC_ORDER=['AED','QAR','SAR','KWD','OMR','BHD','INR','USD','GBP','EUR','CAD','AUD'];
+let qcLive=false,qcStamp=0;
+function qcFmt(c,v){const d=['KWD','BHD','OMR'].includes(c)?3:2;return v.toLocaleString(c==='INR'?'en-IN':'en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function qcRate(c){return liveRates[c]||FALLBACK_RATES[c]||1}
+function qcRender(){
+  const a=+$('qcA').value,f=$('qcF').value,t=$('qcT').value,box=$('qcR');
+  if(!(a>=0)||$('qcA').value.trim()===''){box.innerHTML='';$('qcS').textContent='Enter an amount to convert.';return}
+  const r=qcRate(t)/qcRate(f),v=qcFmt(t,a*r);
+  box.innerHTML='<div data-c="'+t+'" data-v="'+v+'"><small>'+t+'</small><b>'+v+'</b></div>';
+  $('qcS').textContent='1 '+f+' = '+(+r.toPrecision(6)).toLocaleString('en-US',{maximumFractionDigits:6})+' '+t+'. '+(qcLive?'Live market rate':'Approximate saved rate')+'; banks and exchange houses add their own margin.';
+  $('sQc').textContent=qcFmt(f,a)+' '+f+' = '+v+' '+t;
+}
+async function qcRefresh(){
+  if(window.claude&&window.claude.use)return;
+  if(Date.now()-qcStamp<600000)return;
+  try{const d=await jget('https://open.er-api.com/v6/latest/USD');if(d&&d.rates){Object.keys(FALLBACK_RATES).forEach(k=>{if(d.rates[k]>0)liveRates[k]=d.rates[k]});qcLive=true;qcStamp=Date.now();qcRender()}}catch(e){}
+}
+['qcA','qcF','qcT'].forEach(i=>{$(i).addEventListener('input',qcRender);$(i).addEventListener('change',qcRender)});
+$('qcX').addEventListener('click',()=>{const f=$('qcF').value;$('qcF').value=$('qcT').value;$('qcT').value=f;qcRender()});
+$('qcR').addEventListener('click',e=>{const t=e.target.closest('div[data-v]');if(!t)return;const v=t.dataset.v;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).catch(()=>{if(!copyFallback(v))throw 0}).then(()=>msg('Copied '+t.dataset.c+' '+v)).catch(()=>{})});
+$('gQc').addEventListener('toggle',()=>{if($('gQc').open)qcRefresh()});
+qcRender();qcRefresh();
+load();render();fetchLiveRate();
+</script></body></html>
